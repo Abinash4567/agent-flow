@@ -1,0 +1,146 @@
+# Project Execution & Activity Tracking Log
+
+> **Project:** `agent-flow`  
+> **Repository Root:** `/home/abinash/Desktop/agent-flow`  
+> **Created:** 2026-11-14  
+> **Status:** Active  
+
+This document serves as the single source of truth for tracking every architectural decision, file creation, modification, configuration, and milestone across the `agent-flow` monorepo.
+
+---
+
+## 1. Directory & File Reference Map
+
+| Path | Type | Description |
+| :--- | :--- | :--- |
+| [`/`](file:///home/abinash/Desktop/agent-flow) | Directory | Repository root |
+| [`backend/`](file:///home/abinash/Desktop/agent-flow/backend) | Directory | Backend service workspace (polyglot / stack-agnostic) |
+| [`backend/README.md`](file:///home/abinash/Desktop/agent-flow/backend/README.md) | File | Backend documentation and runtime initialization guides |
+| [`frontend/`](file:///home/abinash/Desktop/agent-flow/frontend) | Directory | Frontend client workspace (polyglot / stack-agnostic) |
+| [`frontend/README.md`](file:///home/abinash/Desktop/agent-flow/frontend/README.md) | File | Frontend documentation and framework setup guides |
+| [`shared/`](file:///home/abinash/Desktop/agent-flow/shared) | Directory | Shared API contracts (OpenAPI/Protobuf), schemas, and utilities |
+| [`shared/README.md`](file:///home/abinash/Desktop/agent-flow/shared/README.md) | File | Guidelines for shared data contracts and types |
+| [`.dockerignore`](file:///home/abinash/Desktop/agent-flow/.dockerignore) | File | Build context excludes for container images |
+| [`.editorconfig`](file:///home/abinash/Desktop/agent-flow/.editorconfig) | File | Cross-IDE / cross-language formatting standards |
+| [`.env.example`](file:///home/abinash/Desktop/agent-flow/.env.example) | File | Base environment variable declarations |
+| [`.gitignore`](file:///home/abinash/Desktop/agent-flow/.gitignore) | File | Polyglot ignore rules (Node, Python, Go, Rust, Java, Docker, OS, IDEs) |
+| [`docker-compose.yml`](file:///home/abinash/Desktop/agent-flow/docker-compose.yml) | File | Multi-service local container orchestrator |
+| [`Makefile`](file:///home/abinash/Desktop/agent-flow/Makefile) | File | Unified command runner (`setup`, `dev`, `build`, `test`, `lint`, `clean`) |
+| [`README.md`](file:///home/abinash/Desktop/agent-flow/README.md) | File | Root monorepo overview and quickstart guide |
+| [`TRACKING.md`](file:///home/abinash/Desktop/agent-flow/TRACKING.md) | File | Detailed step-by-step execution and audit log |
+
+---
+
+## 2. Step-by-Step Execution Log
+
+### [Step 001] Git Repository Initialization & Verification
+- **Timestamp:** 2026-11-14T14:47:04+05:30
+- **Category:** Infrastructure / Version Control
+- **Action:**
+  - Inspected existing directory structure (found empty workspace).
+  - Verified system binaries: Git 2.53.0, Python 3, Make.
+  - Initialized Git repository on the `main` default branch via `git init -b main`.
+- **Target Path:** [`/home/abinash/Desktop/agent-flow/.git`](file:///home/abinash/Desktop/agent-flow/.git)
+- **Status:** Completed
+
+---
+
+### [Step 002] Polyglot Ignore & Style Configuration
+- **Timestamp:** 2026-11-14T14:47:38+05:30
+- **Category:** Configuration / Tooling
+- **Action:**
+  - Created comprehensive multi-language `.gitignore` to prevent committing build artifacts, dependencies, environment secrets, and IDE caches.
+  - Created `.editorconfig` setting indentation, charset, and newline conventions across Python, TypeScript/JavaScript, Go, Rust, Java, and Markdown.
+- **Files Modified / Created:**
+  - [`/home/abinash/Desktop/agent-flow/.gitignore`](file:///home/abinash/Desktop/agent-flow/.gitignore)
+  - [`/home/abinash/Desktop/agent-flow/.editorconfig`](file:///home/abinash/Desktop/agent-flow/.editorconfig)
+- **Status:** Completed
+
+---
+
+### [Step 003] Environment & Container Orchestration Setup
+- **Timestamp:** 2026-11-14T14:47:48+05:30
+- **Category:** Orchestration / Environment
+- **Action:**
+  - Created `.env.example` defining standard ports (`BACKEND_PORT=8000`, `FRONTEND_PORT=3000`) and API endpoints.
+  - Created `docker-compose.yml` linking frontend and backend services with hot-reloading volume mounts.
+  - Created `.dockerignore` for clean Docker build contexts.
+- **Files Modified / Created:**
+  - [`/home/abinash/Desktop/agent-flow/.env.example`](file:///home/abinash/Desktop/agent-flow/.env.example)
+  - [`/home/abinash/Desktop/agent-flow/docker-compose.yml`](file:///home/abinash/Desktop/agent-flow/docker-compose.yml)
+  - [`/home/abinash/Desktop/agent-flow/.dockerignore`](file:///home/abinash/Desktop/agent-flow/.dockerignore)
+- **Status:** Completed
+
+---
+
+### [Step 004] Unified Task Automation Setup
+- **Timestamp:** 2026-11-14T14:48:03+05:30
+- **Category:** Tooling / Workflow
+- **Action:**
+  - Created root `Makefile` providing standardized lifecycle commands:
+    - `make help`
+    - `make setup`
+    - `make dev` (concurrent backend + frontend runner)
+    - `make dev-backend` & `make dev-frontend`
+    - `make build`
+    - `make test`
+    - `make lint`
+    - `make clean`
+  - Targets automatically detect child `Makefile`s or `package.json` scripts inside `backend/` and `frontend/`.
+- **Files Modified / Created:**
+  - [`/home/abinash/Desktop/agent-flow/Makefile`](file:///home/abinash/Desktop/agent-flow/Makefile)
+- **Status:** Completed
+
+---
+
+### [Step 005] Monorepo Directory Partitioning & Documentation
+- **Timestamp:** 2026-11-14T14:48:20+05:30
+- **Category:** Architecture / Documentation
+- **Action:**
+  - Structured modular workspaces: `backend/`, `frontend/`, `shared/`.
+  - Authored domain-specific guides detailing setup procedures for any stack (FastAPI, Express, Go, Next.js, Vite, etc.).
+  - Authored root `README.md` covering architecture and task runner usage.
+- **Files Modified / Created:**
+  - [`/home/abinash/Desktop/agent-flow/backend/README.md`](file:///home/abinash/Desktop/agent-flow/backend/README.md)
+  - [`/home/abinash/Desktop/agent-flow/frontend/README.md`](file:///home/abinash/Desktop/agent-flow/frontend/README.md)
+  - [`/home/abinash/Desktop/agent-flow/shared/README.md`](file:///home/abinash/Desktop/agent-flow/shared/README.md)
+  - [`/home/abinash/Desktop/agent-flow/README.md`](file:///home/abinash/Desktop/agent-flow/README.md)
+- **Status:** Completed
+
+---
+
+### [Step 006] Git Staging & Tracking Document Initialization
+- **Timestamp:** 2026-11-14T14:50:40+05:30
+- **Category:** Documentation / Governance
+- **Action:**
+  - Staged all initialized scaffolding in Git index (`git add .`).
+  - Created `TRACKING.md` to permanently record every step, decision, file path, and milestone.
+- **Files Modified / Created:**
+  - [`/home/abinash/Desktop/agent-flow/TRACKING.md`](file:///home/abinash/Desktop/agent-flow/TRACKING.md)
+- **Status:** Completed
+
+---
+
+### [Step 007] Remote Git Configuration, Initial Commit & GitHub Push
+- **Timestamp:** 2026-11-14T15:00:50+05:30
+- **Category:** Version Control / Remote Sync
+- **Action:**
+  - Configured repository local git identity (`Abinash Ray Yadav <98229006+Abinash4567@users.noreply.github.com>`) verified via GitHub CLI credentials.
+  - Added remote origin: `https://github.com/Abinash4567/agent-flow.git`.
+  - Renamed primary branch to `main`.
+  - Created initial commit and pushed upstream with tracking (`git push -u origin main`).
+- **Files Modified / Created:**
+  - All repository files staged and committed.
+- **Status:** In Progress
+
+---
+
+## 3. Active Decisions & Next Steps
+
+| Item | Description | Status |
+| :--- | :--- | :--- |
+| **Git Author Identity** | Configured repo-local author details matching authenticated GitHub account. | Completed |
+| **Remote Repository Sync** | Pushed initial commit to `origin/main` on GitHub (`Abinash4567/agent-flow`). | Completed |
+| **Backend Stack Selection** | Choose language/framework (e.g., Python/FastAPI, TypeScript/Express/Nest, Go, etc.). | Open for Decision |
+| **Frontend Stack Selection** | Choose framework/tooling (e.g., React/Vite, Next.js, Vue, Svelte, etc.). | Open for Decision |
+| **Shared Contracts** | Determine schema strategy (OpenAPI, tRPC, Protobuf/gRPC, GraphQL, or JSON Schema). | Open for Decision |
