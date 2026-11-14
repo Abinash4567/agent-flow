@@ -120,11 +120,58 @@ def fetch_historical_data(symbol="BTC/USDT", timeframe="1h", limit=100) -> pd.Da
     return df
 
 
+def add_technical_indicators(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Calculates 9-period and 21-period Exponential Moving Averages (EMA).
+    """
+    print("\n--- Calculating Technical Indicators (EMA 9 & EMA 21) ---")
+
+    # Calculate Exponential Moving Averages
+    df["ema_9"] = df["close"].ewm(span=9, adjust=False).mean()
+    df["ema_21"] = df["close"].ewm(span=21, adjust=False).mean()
+
+    # Drop early NaN periods if any
+    df.dropna(inplace=True)
+
+    print("Indicator summary (last 5 bars):")
+    print(df[["close", "ema_9", "ema_21"]].tail())
+    return df
+
+
+def generate_signal(df: pd.DataFrame) -> str:
+    """
+    Evaluates the last two completed candles to detect EMA 9 / EMA 21 crossovers.
+    Returns: 'BUY', 'SELL', or 'HOLD'.
+    """
+    if len(df) < 2:
+        return "HOLD"
+
+    current_candle = df.iloc[-1]
+    previous_candle = df.iloc[-2]
+
+    # Condition 1: 9 EMA crosses ABOVE 21 EMA (Bullish Crossover)
+    if (
+        previous_candle["ema_9"] <= previous_candle["ema_21"]
+        and current_candle["ema_9"] > current_candle["ema_21"]
+    ):
+        return "BUY"
+
+    # Condition 2: 9 EMA crosses BELOW 21 EMA (Bearish Crossover)
+    elif (
+        previous_candle["ema_9"] >= previous_candle["ema_21"]
+        and current_candle["ema_9"] < current_candle["ema_21"]
+    ):
+        return "SELL"
+
+    # Default state
+    return "HOLD"
+
+
 def test_market_buy(symbol="BTC/USDT", order_size=0.01):
     """
     Executes a simulated market buy order on the connected testnet exchange.
     """
-    print(f"\n--- Executing Test Trade ---")
+    print(f"\n--- Executing Test Trade (Market Buy) ---")
     print(f"Attempting to buy {order_size} {symbol}...")
 
     try:
@@ -143,11 +190,48 @@ def test_market_buy(symbol="BTC/USDT", order_size=0.01):
         print(f"[ERROR] Unexpected order error: {type(e).__name__}: {e}")
 
 
+def test_market_sell(symbol="BTC/USDT", order_size=0.01):
+    """
+    Executes a simulated market sell order on the connected testnet exchange.
+    """
+    print(f"\n--- Executing Test Trade (Market Sell) ---")
+    print(f"Attempting to sell {order_size} {symbol}...")
+
+    try:
+        order = exchange.create_market_sell_order(symbol, order_size)
+        print("[SUCCESS] Sell Order filled!")
+        print(f"Order ID: {order['id']}")
+        exec_price = order.get("average") or order.get("price") or "Market Filled"
+        print(f"Execution Price: ${exec_price}")
+        print(f"Status: {order['status']}")
+        return order
+    except ccxt.InsufficientFunds as e:
+        print(f"[ERROR] Insufficient simulated holdings to sell: {e}")
+    except ccxt.ExchangeError as e:
+        print(f"[ERROR] Exchange rejected the sell order: {e}")
+    except Exception as e:
+        print(f"[ERROR] Unexpected sell error: {type(e).__name__}: {e}")
+
+
 if __name__ == "__main__":
     verify_connection()
 
-    # 1. Fetch historical data (50 daily candles)
-    historical_df = fetch_historical_data("BTC/USDT", timeframe="1d", limit=50)
+    # 1. Fetch historical data (Using 1h candles for more frequent signals)
+    df = fetch_historical_data("BTC/USDT", timeframe="1h", limit=50)
 
-    # 2. Execute test market buy order
-    test_market_buy()
+    # 2. Add indicators
+    df = add_technical_indicators(df)
+
+    # 3. Generate Signal
+    signal = generate_signal(df)
+    print(f"\n[TRIGGER] Current Signal for BTC/USDT: {signal}")
+
+    # 4. Execute based on the trigger
+    if signal == "BUY":
+        print("Executing Buy Strategy...")
+        test_market_buy("BTC/USDT", order_size=0.01)
+    elif signal == "SELL":
+        print("Executing Sell Strategy...")
+        test_market_sell("BTC/USDT", order_size=0.01)
+    else:
+        print("Market is ranging or maintaining existing trend. Holding position.")

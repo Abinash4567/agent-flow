@@ -252,13 +252,32 @@ This document serves as the single source of truth for tracking every architectu
 
 ---
 
+### [Step 013] Level 2 Quantitative Trigger: EMA 9 & EMA 21 Crossover Strategy
+
+- **Timestamp:** 2026-11-14T21:22:00+05:30
+- **Category:** Strategy & Signal Generation / Level 2
+- **Action:**
+  - Implemented `add_technical_indicators()` in [`backend/bot.py`](file:///home/abinash/Desktop/agent-flow/backend/bot.py) to compute 9-period and 21-period Exponential Moving Averages (EMA) on `close` prices.
+  - Implemented `generate_signal()` detecting bullish crossover (`BUY`), bearish crossover (`SELL`), or trend maintenance (`HOLD`).
+  - Added `test_market_sell()` for bi-directional simulated trade execution.
+  - Wired trigger evaluation to execution engine in root [`bot.py`](file:///home/abinash/Desktop/agent-flow/bot.py).
+  - Live execution verified: Pulled 50 1-hour candles, computed indicators (`ema_9: 66,694.35`, `ema_21: 67,400.65`), and produced `HOLD` signal under existing trend.
+- **Files Modified / Created:**
+  - [`/home/abinash/Desktop/agent-flow/backend/bot.py`](file:///home/abinash/Desktop/agent-flow/backend/bot.py)
+  - [`/home/abinash/Desktop/agent-flow/bot.py`](file:///home/abinash/Desktop/agent-flow/bot.py)
+  - [`/home/abinash/Desktop/agent-flow/TRACKING.md`](file:///home/abinash/Desktop/agent-flow/TRACKING.md)
+- **Status:** Completed
+
+---
+
 ## 3. Active Decisions & Next Steps
 
-| Item                          | Description                                                                           | Status            |
-| :---------------------------- | :------------------------------------------------------------------------------------ | :---------------- |
-| **Git Author Identity**       | Configured repo-local author details matching authenticated GitHub account.           | Completed         |
-| **Remote Repository Sync**    | Pushed initial commit to `origin/main` on GitHub (`Abinash4567/agent-flow`).          | Completed         |
-| **Code Quality & Tooling**    | Prettier, ESLint, Husky, lint-staged, VS Code settings configured.                    | Completed         |
-| **L0 Market Connection**      | Connected to Binance Spot Testnet via `ccxt` with dual auto-detection fallback.       | Completed         |
-| **L1 Order & Data Pipeline**  | Verified automated market buy execution (`Order #13870713`) & OHLCV DataFrame fetch.  | Completed         |
-| **Next Phase: Trigger Logic** | Choose between Quantitative Trigger (EMA/RSI/Momentum) or NLP News Sentiment Trigger. | Open for Decision |
+| Item                         | Description                                                                          | Status            |
+| :--------------------------- | :----------------------------------------------------------------------------------- | :---------------- |
+| **Git Author Identity**      | Configured repo-local author details matching authenticated GitHub account.          | Completed         |
+| **Remote Repository Sync**   | Pushed initial commit to `origin/main` on GitHub (`Abinash4567/agent-flow`).         | Completed         |
+| **Code Quality & Tooling**   | Prettier, ESLint, Husky, lint-staged, VS Code settings configured.                   | Completed         |
+| **L0 Market Connection**     | Connected to Binance Spot Testnet via `ccxt` with dual auto-detection fallback.      | Completed         |
+| **L1 Order & Data Pipeline** | Verified automated market buy execution (`Order #13870713`) & OHLCV DataFrame fetch. | Completed         |
+| **L2 Quantitative Trigger**  | Implemented EMA 9 / EMA 21 indicator pipeline & signal generation (`BUY/SELL/HOLD`). | Completed         |
+| **Next Phase: NLP / News**   | Implement news sentiment trigger or continuous scheduling loop (e.g. cron/daemon).   | Open for Decision |
