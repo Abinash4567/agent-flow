@@ -22,28 +22,50 @@ if not API_KEY or not SECRET_KEY:
     )
     sys.exit(1)
 
-# 1. Initialize the exchange
-exchange = ccxt.binance({
-    "apiKey": API_KEY,
-    "secret": SECRET_KEY,
-    "enableRateLimit": True,  # Automatically spaces out requests to prevent rate-limit blocks
-})
 
-# 2. Enable Binance Demo Trading (demo.binance.com)
-# CCXT routes to https://demo-api.binance.com for keys created at demo.binance.com/en/my/settings/api-management
-USE_LEGACY_SANDBOX = os.getenv("BINANCE_USE_LEGACY_SANDBOX", "false").lower() == "true"
+def get_authenticated_exchange(api_key: str, secret_key: str):
+    """
+    Auto-detects whether the API credentials belong to:
+    1. Binance Spot Testnet Sandbox (https://testnet.binance.vision)
+    2. Binance Demo Trading (https://demo.binance.com)
+    """
+    # Attempt 1: Spot Testnet Sandbox
+    ex_sandbox = ccxt.binance({
+        "apiKey": api_key,
+        "secret": secret_key,
+        "enableRateLimit": True,
+    })
+    ex_sandbox.set_sandbox_mode(True)
+    try:
+        ex_sandbox.fetch_balance()
+        return ex_sandbox, "Binance Spot Testnet Sandbox (testnet.binance.vision)"
+    except ccxt.AuthenticationError:
+        pass
 
-if USE_LEGACY_SANDBOX:
-    exchange.set_sandbox_mode(True)
-else:
-    exchange.enable_demo_trading(True)
+    # Attempt 2: Binance Demo Trading
+    ex_demo = ccxt.binance({
+        "apiKey": api_key,
+        "secret": secret_key,
+        "enableRateLimit": True,
+    })
+    ex_demo.enable_demo_trading(True)
+    try:
+        ex_demo.fetch_balance()
+        return ex_demo, "Binance Demo Trading (demo.binance.com)"
+    except ccxt.AuthenticationError:
+        pass
+
+    # Fallback to sandbox instance if both fail
+    return ex_sandbox, "Binance Spot Testnet Sandbox (Unverified Auth)"
+
+
+exchange, active_mode = get_authenticated_exchange(API_KEY, SECRET_KEY)
 
 
 def verify_connection():
-    endpoint = exchange.urls.get("api", {}).get("public", "demo")
-    mode_name = "Legacy Sandbox (testnet.binance.vision)" if USE_LEGACY_SANDBOX else "Binance Demo Trading (demo.binance.com)"
+    endpoint = exchange.urls.get("api", {}).get("public", "unknown")
     print(f"1. Exchange Initialized: {exchange.id.upper()}")
-    print(f"   Mode: {mode_name}")
+    print(f"   Detected Environment: {active_mode}")
     print(f"   API Endpoint: {endpoint}")
 
     # Step A: Download exchange rules, limits, and tradable symbols
@@ -58,25 +80,21 @@ def verify_connection():
     print(f"   [SUCCESS] Latest BTC/USDT Price: ${last_price:,.2f}")
 
     # Step C: Read simulated account balance
-    print("4. Fetching demo account balances...")
-    balance = exchange.fetch_balance()
-    
-    # Extract non-zero free balances
-    active_funds = {
-        asset: data.get("free", 0.0)
-        for asset, data in balance.items()
-        if isinstance(data, dict) and data.get("free", 0.0) > 0
-    }
-    
-    if active_funds:
-        print("   [SUCCESS] Available Simulated Funds:")
-        for asset, amount in sorted(active_funds.items()):
-            print(f"     - {asset}: {amount:,.2f}")
-    else:
-        usdt_balance = balance.get("USDT", {}).get("free", 0.0)
-        print(f"   [SUCCESS] Available Demo Funds: {usdt_balance:,.2f} USDT")
+    print("4. Fetching testnet account balances...")
+    try:
+        balance = exchange.fetch_balance()
+        
+        # Primary simulated assets to display
+        primary_assets = ["USDT", "USDC", "BTC", "ETH", "BNB"]
+        print("   [SUCCESS] Verified Simulated Funds:")
+        for asset in primary_assets:
+            free_amt = balance.get(asset, {}).get("free", 0.0)
+            if free_amt > 0:
+                print(f"     - {asset}: {free_amt:,.4f}")
 
-    print("\n--> Level 0 Verified: Authenticated connection established with live simulated paper funds.")
+        print("\n--> Level 0 Verified: Authenticated connection established with live simulated paper funds.")
+    except Exception as e:
+        print(f"\n   [ERROR] Could not fetch balances: {type(e).__name__}: {e}")
 
 
 if __name__ == "__main__":

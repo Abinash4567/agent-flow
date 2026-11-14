@@ -211,7 +211,21 @@ This document serves as the single source of truth for tracking every architectu
   - Updated [`backend/bot.py`](file:///home/abinash/Desktop/agent-flow/backend/bot.py) to use CCXT's native `exchange.enable_demo_trading(True)` endpoint (`https://demo-api.binance.com/api/v3`).
   - Successfully authenticated and verified live paper trading balances: 5,000.00 USDT and 5,000.00 USDC.
   - Verified 4,536 tradable markets and real-time BTC/USDT price ticker ($65,519.73).
-  - Level 0 risk-free connectivity is 100% verified and operational.
+- **Files Modified / Created:**
+  - [`/home/abinash/Desktop/agent-flow/backend/bot.py`](file:///home/abinash/Desktop/agent-flow/backend/bot.py)
+  - [`/home/abinash/Desktop/agent-flow/TRACKING.md`](file:///home/abinash/Desktop/agent-flow/TRACKING.md)
+- **Status:** Completed
+
+---
+
+### [Step 011] Spot Testnet Integration & Dual Environment Auto-Detection
+
+- **Timestamp:** 2026-11-14T21:14:30+05:30
+- **Category:** Trading Infrastructure / Level 0 Resiliency
+- **Action:**
+  - Configured newly provided Binance Spot Testnet API credentials (`8SEzsj...` / `hdorn6...`) in `.env`.
+  - Upgraded [`backend/bot.py`](file:///home/abinash/Desktop/agent-flow/backend/bot.py) with dual-environment auto-detection: automatically switches between Binance Spot Testnet Sandbox (`testnet.binance.vision`) and Binance Demo Trading (`demo.binance.com`).
+  - Successfully verified active Spot Testnet Sandbox balance: **10,000.00 USDT**, **10,000.00 USDC**, **1.0000 BTC**, **1.0000 ETH**, and **1.0000 BNB**.
 - **Files Modified / Created:**
   - [`/home/abinash/Desktop/agent-flow/backend/bot.py`](file:///home/abinash/Desktop/agent-flow/backend/bot.py)
   - [`/home/abinash/Desktop/agent-flow/TRACKING.md`](file:///home/abinash/Desktop/agent-flow/TRACKING.md)
@@ -221,11 +235,11 @@ This document serves as the single source of truth for tracking every architectu
 
 ## 3. Active Decisions & Next Steps
 
-| Item                        | Description                                                                       | Status            |
-| :-------------------------- | :-------------------------------------------------------------------------------- | :---------------- |
-| **Git Author Identity**     | Configured repo-local author details matching authenticated GitHub account.       | Completed         |
-| **Remote Repository Sync**  | Pushed initial commit to `origin/main` on GitHub (`Abinash4567/agent-flow`).      | Completed         |
-| **Code Quality & Tooling**  | Prettier, ESLint, Husky, lint-staged, VS Code settings configured.                | Completed         |
-| **L0 Market Connection**    | Connected to Binance Demo Trading (`demo-api.binance.com`) via `ccxt`.            | Completed         |
-| **Demo Account Funds**      | Authenticated successfully. Available funds: 5,000 USDT & 5,000 USDC.             | Verified Active   |
-| **Next Trading Phase (L1)** | Place first automated test order or implement historical data fetch for strategy. | Open for Decision |
+| Item                        | Description                                                                        | Status            |
+| :-------------------------- | :--------------------------------------------------------------------------------- | :---------------- |
+| **Git Author Identity**     | Configured repo-local author details matching authenticated GitHub account.        | Completed         |
+| **Remote Repository Sync**  | Pushed initial commit to `origin/main` on GitHub (`Abinash4567/agent-flow`).       | Completed         |
+| **Code Quality & Tooling**  | Prettier, ESLint, Husky, lint-staged, VS Code settings configured.                 | Completed         |
+| **L0 Market Connection**    | Connected to Binance Spot Testnet via `ccxt` with dual auto-detection fallback.    | Completed         |
+| **Testnet Paper Funds**     | Verified: **10,000 USDT**, **10,000 USDC**, **1.0 BTC**, **1.0 ETH**, **1.0 BNB**. | Verified Active   |
+| **Next Trading Phase (L1)** | Place first automated test order or implement historical data fetch for strategy.  | Open for Decision |
