@@ -233,13 +233,32 @@ This document serves as the single source of truth for tracking every architectu
 
 ---
 
+### [Step 012] Level 1 Implementation: OHLCV Candlestick Ingestion & Market Order Execution
+
+- **Timestamp:** 2026-11-14T21:16:50+05:30
+- **Category:** Trading Mechanics / Level 1 Verification
+- **Action:**
+  - Implemented `fetch_historical_data()` in [`backend/bot.py`](file:///home/abinash/Desktop/agent-flow/backend/bot.py): pulls OHLCV data into structured Pandas DataFrames with datetime indices.
+  - Implemented `test_market_buy()` in [`backend/bot.py`](file:///home/abinash/Desktop/agent-flow/backend/bot.py): handles simulated market order creation and error handling.
+  - Updated root proxy [`bot.py`](file:///home/abinash/Desktop/agent-flow/bot.py).
+  - Executed and verified:
+    - 50 Daily candles downloaded for `BTC/USDT`.
+    - Executed simulated order to purchase 0.01 BTC on Binance Testnet (Filled: Order ID `13870713`, Status `closed`).
+- **Files Modified / Created:**
+  - [`/home/abinash/Desktop/agent-flow/backend/bot.py`](file:///home/abinash/Desktop/agent-flow/backend/bot.py)
+  - [`/home/abinash/Desktop/agent-flow/bot.py`](file:///home/abinash/Desktop/agent-flow/bot.py)
+  - [`/home/abinash/Desktop/agent-flow/TRACKING.md`](file:///home/abinash/Desktop/agent-flow/TRACKING.md)
+- **Status:** Completed
+
+---
+
 ## 3. Active Decisions & Next Steps
 
-| Item                        | Description                                                                        | Status            |
-| :-------------------------- | :--------------------------------------------------------------------------------- | :---------------- |
-| **Git Author Identity**     | Configured repo-local author details matching authenticated GitHub account.        | Completed         |
-| **Remote Repository Sync**  | Pushed initial commit to `origin/main` on GitHub (`Abinash4567/agent-flow`).       | Completed         |
-| **Code Quality & Tooling**  | Prettier, ESLint, Husky, lint-staged, VS Code settings configured.                 | Completed         |
-| **L0 Market Connection**    | Connected to Binance Spot Testnet via `ccxt` with dual auto-detection fallback.    | Completed         |
-| **Testnet Paper Funds**     | Verified: **10,000 USDT**, **10,000 USDC**, **1.0 BTC**, **1.0 ETH**, **1.0 BNB**. | Verified Active   |
-| **Next Trading Phase (L1)** | Place first automated test order or implement historical data fetch for strategy.  | Open for Decision |
+| Item                          | Description                                                                           | Status            |
+| :---------------------------- | :------------------------------------------------------------------------------------ | :---------------- |
+| **Git Author Identity**       | Configured repo-local author details matching authenticated GitHub account.           | Completed         |
+| **Remote Repository Sync**    | Pushed initial commit to `origin/main` on GitHub (`Abinash4567/agent-flow`).          | Completed         |
+| **Code Quality & Tooling**    | Prettier, ESLint, Husky, lint-staged, VS Code settings configured.                    | Completed         |
+| **L0 Market Connection**      | Connected to Binance Spot Testnet via `ccxt` with dual auto-detection fallback.       | Completed         |
+| **L1 Order & Data Pipeline**  | Verified automated market buy execution (`Order #13870713`) & OHLCV DataFrame fetch.  | Completed         |
+| **Next Phase: Trigger Logic** | Choose between Quantitative Trigger (EMA/RSI/Momentum) or NLP News Sentiment Trigger. | Open for Decision |

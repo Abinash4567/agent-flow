@@ -2,6 +2,7 @@ import os
 import sys
 from pathlib import Path
 import ccxt
+import pandas as pd
 from dotenv import load_dotenv
 
 # Search and load .env from current directory or monorepo root
@@ -83,7 +84,7 @@ def verify_connection():
     print("4. Fetching testnet account balances...")
     try:
         balance = exchange.fetch_balance()
-        
+
         # Primary simulated assets to display
         primary_assets = ["USDT", "USDC", "BTC", "ETH", "BNB"]
         print("   [SUCCESS] Verified Simulated Funds:")
@@ -97,5 +98,56 @@ def verify_connection():
         print(f"\n   [ERROR] Could not fetch balances: {type(e).__name__}: {e}")
 
 
+def fetch_historical_data(symbol="BTC/USDT", timeframe="1h", limit=100) -> pd.DataFrame:
+    """
+    Downloads historical OHLCV candlestick data and formats it into a Pandas DataFrame.
+    """
+    print(f"\n--- Fetching Historical Data ---")
+    print(f"Downloading last {limit} {timeframe} candles for {symbol}...")
+
+    # Fetch OHLCV data
+    ohlcv = exchange.fetch_ohlcv(symbol, timeframe, limit=limit)
+
+    # Convert to Pandas DataFrame
+    df = pd.DataFrame(ohlcv, columns=["timestamp", "open", "high", "low", "close", "volume"])
+
+    # Format timestamps
+    df["timestamp"] = pd.to_datetime(df["timestamp"], unit="ms")
+    df.set_index("timestamp", inplace=True)
+
+    print(f"Data sample (last 5 {timeframe} candles):")
+    print(df.tail())
+    return df
+
+
+def test_market_buy(symbol="BTC/USDT", order_size=0.01):
+    """
+    Executes a simulated market buy order on the connected testnet exchange.
+    """
+    print(f"\n--- Executing Test Trade ---")
+    print(f"Attempting to buy {order_size} {symbol}...")
+
+    try:
+        order = exchange.create_market_buy_order(symbol, order_size)
+        print("[SUCCESS] Order filled!")
+        print(f"Order ID: {order['id']}")
+        exec_price = order.get("average") or order.get("price") or "Market Filled"
+        print(f"Execution Price: ${exec_price}")
+        print(f"Status: {order['status']}")
+        return order
+    except ccxt.InsufficientFunds as e:
+        print(f"[ERROR] Insufficient simulated funds: {e}")
+    except ccxt.ExchangeError as e:
+        print(f"[ERROR] Exchange rejected the order: {e}")
+    except Exception as e:
+        print(f"[ERROR] Unexpected order error: {type(e).__name__}: {e}")
+
+
 if __name__ == "__main__":
     verify_connection()
+
+    # 1. Fetch historical data (50 daily candles)
+    historical_df = fetch_historical_data("BTC/USDT", timeframe="1d", limit=50)
+
+    # 2. Execute test market buy order
+    test_market_buy()
