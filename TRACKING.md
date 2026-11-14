@@ -11,31 +11,34 @@ This document serves as the single source of truth for tracking every architectu
 
 ## 1. Directory & File Reference Map
 
-| Path                                                                                         | Type      | Description                                                               |
-| :------------------------------------------------------------------------------------------- | :-------- | :------------------------------------------------------------------------ |
-| [`/`](file:///home/abinash/Desktop/agent-flow)                                               | Directory | Repository root                                                           |
-| [`backend/`](file:///home/abinash/Desktop/agent-flow/backend)                                | Directory | Backend service workspace (polyglot / stack-agnostic)                     |
-| [`backend/README.md`](file:///home/abinash/Desktop/agent-flow/backend/README.md)             | File      | Backend documentation and runtime initialization guides                   |
-| [`frontend/`](file:///home/abinash/Desktop/agent-flow/frontend)                              | Directory | Frontend client workspace (polyglot / stack-agnostic)                     |
-| [`frontend/README.md`](file:///home/abinash/Desktop/agent-flow/frontend/README.md)           | File      | Frontend documentation and framework setup guides                         |
-| [`shared/`](file:///home/abinash/Desktop/agent-flow/shared)                                  | Directory | Shared API contracts (OpenAPI/Protobuf), schemas, and utilities           |
-| [`shared/README.md`](file:///home/abinash/Desktop/agent-flow/shared/README.md)               | File      | Guidelines for shared data contracts and types                            |
-| [`.dockerignore`](file:///home/abinash/Desktop/agent-flow/.dockerignore)                     | File      | Build context excludes for container images                               |
-| [`.editorconfig`](file:///home/abinash/Desktop/agent-flow/.editorconfig)                     | File      | Cross-IDE / cross-language formatting standards                           |
-| [`.env.example`](file:///home/abinash/Desktop/agent-flow/.env.example)                       | File      | Base environment variable declarations                                    |
-| [`.gitignore`](file:///home/abinash/Desktop/agent-flow/.gitignore)                           | File      | Polyglot ignore rules (Node, Python, Go, Rust, Java, Docker, OS, IDEs)    |
-| [`docker-compose.yml`](file:///home/abinash/Desktop/agent-flow/docker-compose.yml)           | File      | Multi-service local container orchestrator                                |
-| [`Makefile`](file:///home/abinash/Desktop/agent-flow/Makefile)                               | File      | Unified command runner (`setup`, `dev`, `build`, `test`, `lint`, `clean`) |
-| [`package.json`](file:///home/abinash/Desktop/agent-flow/package.json)                       | File      | Root tooling scripts and devDependencies                                  |
-| [`.prettierrc.json`](file:///home/abinash/Desktop/agent-flow/.prettierrc.json)               | File      | Code formatter rules (tabs, quotes, width, line endings)                  |
-| [`.prettierignore`](file:///home/abinash/Desktop/agent-flow/.prettierignore)                 | File      | Excluded directories for Prettier formatting                              |
-| [`eslint.config.mjs`](file:///home/abinash/Desktop/agent-flow/eslint.config.mjs)             | File      | ESLint 9 modern flat configuration for code quality                       |
-| [`.lintstagedrc.json`](file:///home/abinash/Desktop/agent-flow/.lintstagedrc.json)           | File      | Staged files pre-commit linter and formatter configuration                |
-| [`.husky/pre-commit`](file:///home/abinash/Desktop/agent-flow/.husky/pre-commit)             | File      | Git pre-commit hook triggering lint-staged                                |
-| [`.vscode/settings.json`](file:///home/abinash/Desktop/agent-flow/.vscode/settings.json)     | File      | VS Code workspace settings (format-on-save, autofix)                      |
-| [`.vscode/extensions.json`](file:///home/abinash/Desktop/agent-flow/.vscode/extensions.json) | File      | Recommended VS Code extensions (Prettier, ESLint, EditorConfig)           |
-| [`README.md`](file:///home/abinash/Desktop/agent-flow/README.md)                             | File      | Root monorepo overview and quickstart guide                               |
-| [`TRACKING.md`](file:///home/abinash/Desktop/agent-flow/TRACKING.md)                         | File      | Detailed step-by-step execution and audit log                             |
+| Path                                                                                           | Type      | Description                                                               |
+| :--------------------------------------------------------------------------------------------- | :-------- | :------------------------------------------------------------------------ |
+| [`/`](file:///home/abinash/Desktop/agent-flow)                                                 | Directory | Repository root                                                           |
+| [`backend/`](file:///home/abinash/Desktop/agent-flow/backend)                                  | Directory | Backend service workspace (polyglot / stack-agnostic)                     |
+| [`backend/README.md`](file:///home/abinash/Desktop/agent-flow/backend/README.md)               | File      | Backend documentation and runtime initialization guides                   |
+| [`backend/requirements.txt`](file:///home/abinash/Desktop/agent-flow/backend/requirements.txt) | File      | Python dependencies (`ccxt`, `pandas`, `python-dotenv`)                   |
+| [`backend/bot.py`](file:///home/abinash/Desktop/agent-flow/backend/bot.py)                     | File      | Level 0 exchange verification & market data script                        |
+| [`bot.py`](file:///home/abinash/Desktop/agent-flow/bot.py)                                     | File      | Root entrypoint proxy for `backend/bot.py`                                |
+| [`frontend/`](file:///home/abinash/Desktop/agent-flow/frontend)                                | Directory | Frontend client workspace (polyglot / stack-agnostic)                     |
+| [`frontend/README.md`](file:///home/abinash/Desktop/agent-flow/frontend/README.md)             | File      | Frontend documentation and framework setup guides                         |
+| [`shared/`](file:///home/abinash/Desktop/agent-flow/shared)                                    | Directory | Shared API contracts (OpenAPI/Protobuf), schemas, and utilities           |
+| [`shared/README.md`](file:///home/abinash/Desktop/agent-flow/shared/README.md)                 | File      | Guidelines for shared data contracts and types                            |
+| [`.dockerignore`](file:///home/abinash/Desktop/agent-flow/.dockerignore)                       | File      | Build context excludes for container images                               |
+| [`.editorconfig`](file:///home/abinash/Desktop/agent-flow/.editorconfig)                       | File      | Cross-IDE / cross-language formatting standards                           |
+| [`.env.example`](file:///home/abinash/Desktop/agent-flow/.env.example)                         | File      | Base environment variable declarations                                    |
+| [`.gitignore`](file:///home/abinash/Desktop/agent-flow/.gitignore)                             | File      | Polyglot ignore rules (Node, Python, Go, Rust, Java, Docker, OS, IDEs)    |
+| [`docker-compose.yml`](file:///home/abinash/Desktop/agent-flow/docker-compose.yml)             | File      | Multi-service local container orchestrator                                |
+| [`Makefile`](file:///home/abinash/Desktop/agent-flow/Makefile)                                 | File      | Unified command runner (`setup`, `dev`, `build`, `test`, `lint`, `clean`) |
+| [`package.json`](file:///home/abinash/Desktop/agent-flow/package.json)                         | File      | Root tooling scripts and devDependencies                                  |
+| [`.prettierrc.json`](file:///home/abinash/Desktop/agent-flow/.prettierrc.json)                 | File      | Code formatter rules (tabs, quotes, width, line endings)                  |
+| [`.prettierignore`](file:///home/abinash/Desktop/agent-flow/.prettierignore)                   | File      | Excluded directories for Prettier formatting                              |
+| [`eslint.config.mjs`](file:///home/abinash/Desktop/agent-flow/eslint.config.mjs)               | File      | ESLint 9 modern flat configuration for code quality                       |
+| [`.lintstagedrc.json`](file:///home/abinash/Desktop/agent-flow/.lintstagedrc.json)             | File      | Staged files pre-commit linter and formatter configuration                |
+| [`.husky/pre-commit`](file:///home/abinash/Desktop/agent-flow/.husky/pre-commit)               | File      | Git pre-commit hook triggering lint-staged                                |
+| [`.vscode/settings.json`](file:///home/abinash/Desktop/agent-flow/.vscode/settings.json)       | File      | VS Code workspace settings (format-on-save, autofix)                      |
+| [`.vscode/extensions.json`](file:///home/abinash/Desktop/agent-flow/.vscode/extensions.json)   | File      | Recommended VS Code extensions (Prettier, ESLint, EditorConfig)           |
+| [`README.md`](file:///home/abinash/Desktop/agent-flow/README.md)                               | File      | Root monorepo overview and quickstart guide                               |
+| [`TRACKING.md`](file:///home/abinash/Desktop/agent-flow/TRACKING.md)                           | File      | Detailed step-by-step execution and audit log                             |
 
 ---
 
@@ -178,13 +181,35 @@ This document serves as the single source of truth for tracking every architectu
 
 ---
 
+### [Step 009] Level 0 Crypto Bot Connection & Environment Setup
+
+- **Timestamp:** 2026-11-14T21:01:00+05:30
+- **Category:** Trading Infrastructure / Level 0
+- **Action:**
+  - Set up Python virtual environment (`.venv`) with `ccxt`, `pandas`, and `python-dotenv`.
+  - Created [`backend/requirements.txt`](file:///home/abinash/Desktop/agent-flow/backend/requirements.txt) tracking dependencies.
+  - Authored [`backend/bot.py`](file:///home/abinash/Desktop/agent-flow/backend/bot.py) and root [`bot.py`](file:///home/abinash/Desktop/agent-flow/bot.py) proxy.
+  - Implemented secure `.env` credential loading for `BINANCE_TEST_API` and `BINANCE_SECRET_KEY`.
+  - Configured `ccxt.binance` sandbox mode (`testnet.binance.vision`).
+  - Successfully connected and verified market data loading (2,167 trading pairs) and live ticker pricing (`BTC/USDT`).
+  - Added robust error handling and diagnostics for testnet credentials.
+- **Files Modified / Created:**
+  - [`/home/abinash/Desktop/agent-flow/backend/bot.py`](file:///home/abinash/Desktop/agent-flow/backend/bot.py)
+  - [`/home/abinash/Desktop/agent-flow/bot.py`](file:///home/abinash/Desktop/agent-flow/bot.py)
+  - [`/home/abinash/Desktop/agent-flow/backend/requirements.txt`](file:///home/abinash/Desktop/agent-flow/backend/requirements.txt)
+  - [`/home/abinash/Desktop/agent-flow/.env.example`](file:///home/abinash/Desktop/agent-flow/.env.example)
+  - [`/home/abinash/Desktop/agent-flow/TRACKING.md`](file:///home/abinash/Desktop/agent-flow/TRACKING.md)
+- **Status:** Completed
+
+---
+
 ## 3. Active Decisions & Next Steps
 
-| Item                         | Description                                                                          | Status            |
-| :--------------------------- | :----------------------------------------------------------------------------------- | :---------------- |
-| **Git Author Identity**      | Configured repo-local author details matching authenticated GitHub account.          | Completed         |
-| **Remote Repository Sync**   | Pushed initial commit to `origin/main` on GitHub (`Abinash4567/agent-flow`).         | Completed         |
-| **Code Quality & Tooling**   | Prettier, ESLint, Husky, lint-staged, VS Code settings configured.                   | Completed         |
-| **Backend Stack Selection**  | Choose language/framework (e.g., Python/FastAPI, TypeScript/Express/Nest, Go, etc.). | Open for Decision |
-| **Frontend Stack Selection** | Choose framework/tooling (e.g., React/Vite, Next.js, Vue, Svelte, etc.).             | Open for Decision |
-| **Shared Contracts**         | Determine schema strategy (OpenAPI, tRPC, Protobuf/gRPC, GraphQL, or JSON Schema).   | Open for Decision |
+| Item                        | Description                                                                           | Status             |
+| :-------------------------- | :------------------------------------------------------------------------------------ | :----------------- |
+| **Git Author Identity**     | Configured repo-local author details matching authenticated GitHub account.           | Completed          |
+| **Remote Repository Sync**  | Pushed initial commit to `origin/main` on GitHub (`Abinash4567/agent-flow`).          | Completed          |
+| **Code Quality & Tooling**  | Prettier, ESLint, Husky, lint-staged, VS Code settings configured.                    | Completed          |
+| **L0 Market Connection**    | Connected to Binance Testnet via `ccxt`, verified market loading & live BTC pricing.  | Completed          |
+| **Testnet Account Funds**   | Ensure API keys are generated from `https://testnet.binance.vision` with GitHub auth. | Pending User Check |
+| **Next Trading Phase (L1)** | Place first automated test order or implement historical data fetch for strategy.     | Open for Decision  |
