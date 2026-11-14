@@ -1,4 +1,4 @@
-.PHONY: help setup dev dev-backend dev-frontend build test lint clean
+.PHONY: help setup dev dev-backend dev-frontend build test lint format clean
 
 help:
 	@echo "Available commands:"
@@ -8,7 +8,8 @@ help:
 	@echo "  make dev-frontend   - Run frontend service"
 	@echo "  make build          - Build both services"
 	@echo "  make test           - Run tests across all services"
-	@echo "  make lint           - Run linters across all services"
+	@echo "  make lint           - Run linters across root and services"
+	@echo "  make format         - Format codebase with Prettier"
 	@echo "  make clean          - Clean build artifacts and temporary files"
 
 setup:
@@ -45,8 +46,13 @@ test:
 
 lint:
 	@echo "Running linting..."
+	@if [ -f package.json ]; then npm run lint; fi
 	@if [ -f backend/Makefile ]; then $(MAKE) -C backend lint; fi
 	@if [ -f frontend/Makefile ]; then $(MAKE) -C frontend lint; fi
+
+format:
+	@echo "Formatting codebase..."
+	@if [ -f package.json ]; then npm run format; fi
 
 clean:
 	@echo "Cleaning artifacts..."

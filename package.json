@@ -1,0 +1,33 @@
+{
+  "name": "agent-flow",
+  "version": "1.0.0",
+  "description": "A flexible, polyglot monorepo structure designed for any tech stack compatibility across frontend, backend, and shared utilities.",
+  "main": "index.js",
+  "scripts": {
+    "format:check": "prettier --check .",
+    "format": "prettier --write .",
+    "lint": "eslint .",
+    "lint:fix": "eslint --fix .",
+    "prepare": "husky"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Abinash4567/agent-flow.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/Abinash4567/agent-flow/issues"
+  },
+  "homepage": "https://github.com/Abinash4567/agent-flow#readme",
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "eslint": "^10.15.0",
+    "globals": "^17.14.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^17.6.0",
+    "prettier": "^3.10.1"
+  }
+}

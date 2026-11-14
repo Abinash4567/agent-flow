@@ -3,7 +3,7 @@
 > **Project:** `agent-flow`  
 > **Repository Root:** `/home/abinash/Desktop/agent-flow`  
 > **Created:** 2026-11-14  
-> **Status:** Active  
+> **Status:** Active
 
 This document serves as the single source of truth for tracking every architectural decision, file creation, modification, configuration, and milestone across the `agent-flow` monorepo.
 
@@ -11,29 +11,38 @@ This document serves as the single source of truth for tracking every architectu
 
 ## 1. Directory & File Reference Map
 
-| Path | Type | Description |
-| :--- | :--- | :--- |
-| [`/`](file:///home/abinash/Desktop/agent-flow) | Directory | Repository root |
-| [`backend/`](file:///home/abinash/Desktop/agent-flow/backend) | Directory | Backend service workspace (polyglot / stack-agnostic) |
-| [`backend/README.md`](file:///home/abinash/Desktop/agent-flow/backend/README.md) | File | Backend documentation and runtime initialization guides |
-| [`frontend/`](file:///home/abinash/Desktop/agent-flow/frontend) | Directory | Frontend client workspace (polyglot / stack-agnostic) |
-| [`frontend/README.md`](file:///home/abinash/Desktop/agent-flow/frontend/README.md) | File | Frontend documentation and framework setup guides |
-| [`shared/`](file:///home/abinash/Desktop/agent-flow/shared) | Directory | Shared API contracts (OpenAPI/Protobuf), schemas, and utilities |
-| [`shared/README.md`](file:///home/abinash/Desktop/agent-flow/shared/README.md) | File | Guidelines for shared data contracts and types |
-| [`.dockerignore`](file:///home/abinash/Desktop/agent-flow/.dockerignore) | File | Build context excludes for container images |
-| [`.editorconfig`](file:///home/abinash/Desktop/agent-flow/.editorconfig) | File | Cross-IDE / cross-language formatting standards |
-| [`.env.example`](file:///home/abinash/Desktop/agent-flow/.env.example) | File | Base environment variable declarations |
-| [`.gitignore`](file:///home/abinash/Desktop/agent-flow/.gitignore) | File | Polyglot ignore rules (Node, Python, Go, Rust, Java, Docker, OS, IDEs) |
-| [`docker-compose.yml`](file:///home/abinash/Desktop/agent-flow/docker-compose.yml) | File | Multi-service local container orchestrator |
-| [`Makefile`](file:///home/abinash/Desktop/agent-flow/Makefile) | File | Unified command runner (`setup`, `dev`, `build`, `test`, `lint`, `clean`) |
-| [`README.md`](file:///home/abinash/Desktop/agent-flow/README.md) | File | Root monorepo overview and quickstart guide |
-| [`TRACKING.md`](file:///home/abinash/Desktop/agent-flow/TRACKING.md) | File | Detailed step-by-step execution and audit log |
+| Path                                                                                         | Type      | Description                                                               |
+| :------------------------------------------------------------------------------------------- | :-------- | :------------------------------------------------------------------------ |
+| [`/`](file:///home/abinash/Desktop/agent-flow)                                               | Directory | Repository root                                                           |
+| [`backend/`](file:///home/abinash/Desktop/agent-flow/backend)                                | Directory | Backend service workspace (polyglot / stack-agnostic)                     |
+| [`backend/README.md`](file:///home/abinash/Desktop/agent-flow/backend/README.md)             | File      | Backend documentation and runtime initialization guides                   |
+| [`frontend/`](file:///home/abinash/Desktop/agent-flow/frontend)                              | Directory | Frontend client workspace (polyglot / stack-agnostic)                     |
+| [`frontend/README.md`](file:///home/abinash/Desktop/agent-flow/frontend/README.md)           | File      | Frontend documentation and framework setup guides                         |
+| [`shared/`](file:///home/abinash/Desktop/agent-flow/shared)                                  | Directory | Shared API contracts (OpenAPI/Protobuf), schemas, and utilities           |
+| [`shared/README.md`](file:///home/abinash/Desktop/agent-flow/shared/README.md)               | File      | Guidelines for shared data contracts and types                            |
+| [`.dockerignore`](file:///home/abinash/Desktop/agent-flow/.dockerignore)                     | File      | Build context excludes for container images                               |
+| [`.editorconfig`](file:///home/abinash/Desktop/agent-flow/.editorconfig)                     | File      | Cross-IDE / cross-language formatting standards                           |
+| [`.env.example`](file:///home/abinash/Desktop/agent-flow/.env.example)                       | File      | Base environment variable declarations                                    |
+| [`.gitignore`](file:///home/abinash/Desktop/agent-flow/.gitignore)                           | File      | Polyglot ignore rules (Node, Python, Go, Rust, Java, Docker, OS, IDEs)    |
+| [`docker-compose.yml`](file:///home/abinash/Desktop/agent-flow/docker-compose.yml)           | File      | Multi-service local container orchestrator                                |
+| [`Makefile`](file:///home/abinash/Desktop/agent-flow/Makefile)                               | File      | Unified command runner (`setup`, `dev`, `build`, `test`, `lint`, `clean`) |
+| [`package.json`](file:///home/abinash/Desktop/agent-flow/package.json)                       | File      | Root tooling scripts and devDependencies                                  |
+| [`.prettierrc.json`](file:///home/abinash/Desktop/agent-flow/.prettierrc.json)               | File      | Code formatter rules (tabs, quotes, width, line endings)                  |
+| [`.prettierignore`](file:///home/abinash/Desktop/agent-flow/.prettierignore)                 | File      | Excluded directories for Prettier formatting                              |
+| [`eslint.config.mjs`](file:///home/abinash/Desktop/agent-flow/eslint.config.mjs)             | File      | ESLint 9 modern flat configuration for code quality                       |
+| [`.lintstagedrc.json`](file:///home/abinash/Desktop/agent-flow/.lintstagedrc.json)           | File      | Staged files pre-commit linter and formatter configuration                |
+| [`.husky/pre-commit`](file:///home/abinash/Desktop/agent-flow/.husky/pre-commit)             | File      | Git pre-commit hook triggering lint-staged                                |
+| [`.vscode/settings.json`](file:///home/abinash/Desktop/agent-flow/.vscode/settings.json)     | File      | VS Code workspace settings (format-on-save, autofix)                      |
+| [`.vscode/extensions.json`](file:///home/abinash/Desktop/agent-flow/.vscode/extensions.json) | File      | Recommended VS Code extensions (Prettier, ESLint, EditorConfig)           |
+| [`README.md`](file:///home/abinash/Desktop/agent-flow/README.md)                             | File      | Root monorepo overview and quickstart guide                               |
+| [`TRACKING.md`](file:///home/abinash/Desktop/agent-flow/TRACKING.md)                         | File      | Detailed step-by-step execution and audit log                             |
 
 ---
 
 ## 2. Step-by-Step Execution Log
 
 ### [Step 001] Git Repository Initialization & Verification
+
 - **Timestamp:** 2026-11-14T14:47:04+05:30
 - **Category:** Infrastructure / Version Control
 - **Action:**
@@ -46,6 +55,7 @@ This document serves as the single source of truth for tracking every architectu
 ---
 
 ### [Step 002] Polyglot Ignore & Style Configuration
+
 - **Timestamp:** 2026-11-14T14:47:38+05:30
 - **Category:** Configuration / Tooling
 - **Action:**
@@ -59,6 +69,7 @@ This document serves as the single source of truth for tracking every architectu
 ---
 
 ### [Step 003] Environment & Container Orchestration Setup
+
 - **Timestamp:** 2026-11-14T14:47:48+05:30
 - **Category:** Orchestration / Environment
 - **Action:**
@@ -74,6 +85,7 @@ This document serves as the single source of truth for tracking every architectu
 ---
 
 ### [Step 004] Unified Task Automation Setup
+
 - **Timestamp:** 2026-11-14T14:48:03+05:30
 - **Category:** Tooling / Workflow
 - **Action:**
@@ -94,6 +106,7 @@ This document serves as the single source of truth for tracking every architectu
 ---
 
 ### [Step 005] Monorepo Directory Partitioning & Documentation
+
 - **Timestamp:** 2026-11-14T14:48:20+05:30
 - **Category:** Architecture / Documentation
 - **Action:**
@@ -110,6 +123,7 @@ This document serves as the single source of truth for tracking every architectu
 ---
 
 ### [Step 006] Git Staging & Tracking Document Initialization
+
 - **Timestamp:** 2026-11-14T14:50:40+05:30
 - **Category:** Documentation / Governance
 - **Action:**
@@ -122,6 +136,7 @@ This document serves as the single source of truth for tracking every architectu
 ---
 
 ### [Step 007] Remote Git Configuration, Initial Commit & GitHub Push
+
 - **Timestamp:** 2026-11-14T15:00:50+05:30
 - **Category:** Version Control / Remote Sync
 - **Action:**
@@ -135,12 +150,41 @@ This document serves as the single source of truth for tracking every architectu
 
 ---
 
+### [Step 008] Formatter, Linter, Husky Git Hooks & VS Code Integration
+
+- **Timestamp:** 2026-11-14T15:07:30+05:30
+- **Category:** Code Quality / Developer Experience
+- **Action:**
+  - Configured Node LTS runtime and initialized root devDependencies: `prettier`, `eslint`, `@eslint/js`, `globals`, `husky`, and `lint-staged`.
+  - Created `.prettierrc.json` and `.prettierignore` configured for 2-space indentation, double quotes, and LF line endings.
+  - Created `eslint.config.mjs` using modern ESLint 9 flat configuration with recommended JS/TS parsing rules.
+  - Initialized Husky 9 and configured `.husky/pre-commit` hook to automatically execute `lint-staged` before every commit.
+  - Created `.lintstagedrc.json` to auto-format and fix staged files on commit.
+  - Configured `.vscode/settings.json` for format-on-save, ESLint autofix on save, and language-specific indentation.
+  - Configured `.vscode/extensions.json` recommending Prettier, ESLint, and EditorConfig extensions.
+  - Extended root `Makefile` with `make format` and connected `make lint` to `npm run lint`.
+- **Files Modified / Created:**
+  - [`/home/abinash/Desktop/agent-flow/package.json`](file:///home/abinash/Desktop/agent-flow/package.json)
+  - [`/home/abinash/Desktop/agent-flow/.prettierrc.json`](file:///home/abinash/Desktop/agent-flow/.prettierrc.json)
+  - [`/home/abinash/Desktop/agent-flow/.prettierignore`](file:///home/abinash/Desktop/agent-flow/.prettierignore)
+  - [`/home/abinash/Desktop/agent-flow/eslint.config.mjs`](file:///home/abinash/Desktop/agent-flow/eslint.config.mjs)
+  - [`/home/abinash/Desktop/agent-flow/.lintstagedrc.json`](file:///home/abinash/Desktop/agent-flow/.lintstagedrc.json)
+  - [`/home/abinash/Desktop/agent-flow/.husky/pre-commit`](file:///home/abinash/Desktop/agent-flow/.husky/pre-commit)
+  - [`/home/abinash/Desktop/agent-flow/.vscode/settings.json`](file:///home/abinash/Desktop/agent-flow/.vscode/settings.json)
+  - [`/home/abinash/Desktop/agent-flow/.vscode/extensions.json`](file:///home/abinash/Desktop/agent-flow/.vscode/extensions.json)
+  - [`/home/abinash/Desktop/agent-flow/Makefile`](file:///home/abinash/Desktop/agent-flow/Makefile)
+  - [`/home/abinash/Desktop/agent-flow/TRACKING.md`](file:///home/abinash/Desktop/agent-flow/TRACKING.md)
+- **Status:** Completed
+
+---
+
 ## 3. Active Decisions & Next Steps
 
-| Item | Description | Status |
-| :--- | :--- | :--- |
-| **Git Author Identity** | Configured repo-local author details matching authenticated GitHub account. | Completed |
-| **Remote Repository Sync** | Pushed initial commit to `origin/main` on GitHub (`Abinash4567/agent-flow`). | Completed |
-| **Backend Stack Selection** | Choose language/framework (e.g., Python/FastAPI, TypeScript/Express/Nest, Go, etc.). | Open for Decision |
-| **Frontend Stack Selection** | Choose framework/tooling (e.g., React/Vite, Next.js, Vue, Svelte, etc.). | Open for Decision |
-| **Shared Contracts** | Determine schema strategy (OpenAPI, tRPC, Protobuf/gRPC, GraphQL, or JSON Schema). | Open for Decision |
+| Item                         | Description                                                                          | Status            |
+| :--------------------------- | :----------------------------------------------------------------------------------- | :---------------- |
+| **Git Author Identity**      | Configured repo-local author details matching authenticated GitHub account.          | Completed         |
+| **Remote Repository Sync**   | Pushed initial commit to `origin/main` on GitHub (`Abinash4567/agent-flow`).         | Completed         |
+| **Code Quality & Tooling**   | Prettier, ESLint, Husky, lint-staged, VS Code settings configured.                   | Completed         |
+| **Backend Stack Selection**  | Choose language/framework (e.g., Python/FastAPI, TypeScript/Express/Nest, Go, etc.). | Open for Decision |
+| **Frontend Stack Selection** | Choose framework/tooling (e.g., React/Vite, Next.js, Vue, Svelte, etc.).             | Open for Decision |
+| **Shared Contracts**         | Determine schema strategy (OpenAPI, tRPC, Protobuf/gRPC, GraphQL, or JSON Schema).   | Open for Decision |
