@@ -192,7 +192,6 @@ This document serves as the single source of truth for tracking every architectu
   - Implemented secure `.env` credential loading for `BINANCE_TEST_API` and `BINANCE_SECRET_KEY`.
   - Configured `ccxt.binance` sandbox mode (`testnet.binance.vision`).
   - Successfully connected and verified market data loading (2,167 trading pairs) and live ticker pricing (`BTC/USDT`).
-  - Added robust error handling and diagnostics for testnet credentials.
 - **Files Modified / Created:**
   - [`/home/abinash/Desktop/agent-flow/backend/bot.py`](file:///home/abinash/Desktop/agent-flow/backend/bot.py)
   - [`/home/abinash/Desktop/agent-flow/bot.py`](file:///home/abinash/Desktop/agent-flow/bot.py)
@@ -203,13 +202,30 @@ This document serves as the single source of truth for tracking every architectu
 
 ---
 
+### [Step 010] Binance Demo Trading Integration & Account Balance Verification
+
+- **Timestamp:** 2026-11-14T21:12:30+05:30
+- **Category:** Trading Infrastructure / Level 0 Verification
+- **Action:**
+  - Identified user API key origin: Binance Demo Trading (`https://demo.binance.com/en/my/settings/api-management`).
+  - Updated [`backend/bot.py`](file:///home/abinash/Desktop/agent-flow/backend/bot.py) to use CCXT's native `exchange.enable_demo_trading(True)` endpoint (`https://demo-api.binance.com/api/v3`).
+  - Successfully authenticated and verified live paper trading balances: 5,000.00 USDT and 5,000.00 USDC.
+  - Verified 4,536 tradable markets and real-time BTC/USDT price ticker ($65,519.73).
+  - Level 0 risk-free connectivity is 100% verified and operational.
+- **Files Modified / Created:**
+  - [`/home/abinash/Desktop/agent-flow/backend/bot.py`](file:///home/abinash/Desktop/agent-flow/backend/bot.py)
+  - [`/home/abinash/Desktop/agent-flow/TRACKING.md`](file:///home/abinash/Desktop/agent-flow/TRACKING.md)
+- **Status:** Completed
+
+---
+
 ## 3. Active Decisions & Next Steps
 
-| Item                        | Description                                                                           | Status             |
-| :-------------------------- | :------------------------------------------------------------------------------------ | :----------------- |
-| **Git Author Identity**     | Configured repo-local author details matching authenticated GitHub account.           | Completed          |
-| **Remote Repository Sync**  | Pushed initial commit to `origin/main` on GitHub (`Abinash4567/agent-flow`).          | Completed          |
-| **Code Quality & Tooling**  | Prettier, ESLint, Husky, lint-staged, VS Code settings configured.                    | Completed          |
-| **L0 Market Connection**    | Connected to Binance Testnet via `ccxt`, verified market loading & live BTC pricing.  | Completed          |
-| **Testnet Account Funds**   | Ensure API keys are generated from `https://testnet.binance.vision` with GitHub auth. | Pending User Check |
-| **Next Trading Phase (L1)** | Place first automated test order or implement historical data fetch for strategy.     | Open for Decision  |
+| Item                        | Description                                                                       | Status            |
+| :-------------------------- | :-------------------------------------------------------------------------------- | :---------------- |
+| **Git Author Identity**     | Configured repo-local author details matching authenticated GitHub account.       | Completed         |
+| **Remote Repository Sync**  | Pushed initial commit to `origin/main` on GitHub (`Abinash4567/agent-flow`).      | Completed         |
+| **Code Quality & Tooling**  | Prettier, ESLint, Husky, lint-staged, VS Code settings configured.                | Completed         |
+| **L0 Market Connection**    | Connected to Binance Demo Trading (`demo-api.binance.com`) via `ccxt`.            | Completed         |
+| **Demo Account Funds**      | Authenticated successfully. Available funds: 5,000 USDT & 5,000 USDC.             | Verified Active   |
+| **Next Trading Phase (L1)** | Place first automated test order or implement historical data fetch for strategy. | Open for Decision |
