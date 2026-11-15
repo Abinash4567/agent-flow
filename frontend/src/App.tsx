@@ -55,8 +55,13 @@ interface StatusResponse {
 interface CandlePoint {
   time: string;
   close: number;
-  ema_9: number;
-  ema_21: number;
+  ema_fast?: number;
+  ema_slow?: number;
+  ema_13?: number;
+  ema_18?: number;
+  ema_9?: number;
+  ema_21?: number;
+  atr?: number;
   volume: number;
 }
 
@@ -267,8 +272,8 @@ export default function App() {
             </div>
           </div>
           <div className="mt-2 text-[11px] text-gray-500 border-t border-gray-800 pt-1.5 flex justify-between">
-            <span>Stop: -2.0%</span>
-            <span>Target: +6.0%</span>
+            <span className="text-cyan-400 font-medium">Risk: 2x ATR Trailing Stop</span>
+            <span>Optimized: EMA 13/18</span>
           </div>
         </div>
       </div>
@@ -281,20 +286,21 @@ export default function App() {
             <div>
               <h2 className="text-lg font-bold text-slate-100 flex items-center gap-2">
                 <TrendingUp className="w-5 h-5 text-cyan-400" />
-                Technical Trend: EMA 9 / EMA 21 Crossover (1h Candles)
+                Technical Trend: EMA 13 / EMA 18 Crossover (1h Candles)
               </h2>
               <p className="text-xs text-gray-400 mt-0.5">
-                Dynamic exponential moving averages tracking trend direction.
+                Mathematically optimized exponential moving averages + 14-period ATR volatility
+                shield.
               </p>
             </div>
             <div className="flex items-center gap-4 text-xs">
               <div className="flex items-center gap-1.5">
                 <div className="w-3 h-3 rounded-full bg-cyan-400"></div>
-                <span className="text-gray-300">EMA 9</span>
+                <span className="text-gray-300">EMA 13 (Fast)</span>
               </div>
               <div className="flex items-center gap-1.5">
                 <div className="w-3 h-3 rounded-full bg-amber-400"></div>
-                <span className="text-gray-300">EMA 21</span>
+                <span className="text-gray-300">EMA 18 (Slow)</span>
               </div>
               <div className="flex items-center gap-1.5">
                 <div className="w-3 h-3 rounded-full bg-slate-400"></div>
@@ -334,14 +340,14 @@ export default function App() {
                   />
                   <Line
                     type="monotone"
-                    dataKey="ema_9"
+                    dataKey="ema_13"
                     stroke="#22d3ee"
                     strokeWidth={2.5}
                     dot={false}
                   />
                   <Line
                     type="monotone"
-                    dataKey="ema_21"
+                    dataKey="ema_18"
                     stroke="#f59e0b"
                     strokeWidth={2.5}
                     dot={false}

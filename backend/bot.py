@@ -35,44 +35,54 @@ if not API_KEY or not SECRET_KEY:
 # ==========================================
 STATE_FILE = repo_root / ".state.json"
 
-# Risk Management Parameters
-STOP_LOSS_PCT = float(os.getenv("STOP_LOSS_PCT", "0.02"))  # 2% Stop-Loss below entry
-TAKE_PROFIT_PCT = float(os.getenv("TAKE_PROFIT_PCT", "0.06"))  # 6% Take-Profit above entry
+# Risk Management Parameters (ATR Volatility Shield)
+ATR_MULTIPLIER = float(os.getenv("ATR_MULTIPLIER", "2.0"))  # Dynamic Trailing Stop: 2x ATR
 TRADE_SIZE_BTC = float(os.getenv("TRADE_SIZE_BTC", "0.01"))  # Trade size: 0.01 BTC
 POLL_INTERVAL_SECONDS = int(os.getenv("POLL_INTERVAL_SECONDS", "900"))  # Default: 15 minutes (900s)
 
-# Position Memory
+# Upgraded State Tracking for Trailing Stops
 in_position: bool = False
 entry_price: float = 0.0
+highest_price_since_entry: float = 0.0
+current_atr: float = 0.0
 position_size: float = 0.0
 
 
 def load_position_state():
-    """Restores open trade positions across daemon restarts."""
-    global in_position, entry_price, position_size
+    """Restores open trade positions and trailing stop watermarks across restarts."""
+    global in_position, entry_price, highest_price_since_entry, current_atr, position_size
     if STATE_FILE.exists():
         try:
             with open(STATE_FILE, "r", encoding="utf-8") as f:
                 data = json.load(f)
                 in_position = data.get("in_position", False)
                 entry_price = float(data.get("entry_price", 0.0))
+                highest_price_since_entry = float(data.get("highest_price_since_entry", entry_price))
+                current_atr = float(data.get("current_atr", 0.0))
                 position_size = float(data.get("position_size", 0.0))
                 if in_position:
+                    trailing_stop = highest_price_since_entry - (ATR_MULTIPLIER * current_atr) if current_atr > 0 else 0.0
                     print(
-                        f"[STATE RESTORED] Open Position: {position_size} BTC @ ${entry_price:,.2f}"
+                        f"[STATE RESTORED] Open Position: {position_size} BTC @ ${entry_price:,.2f} | "
+                        f"Peak: ${highest_price_since_entry:,.2f} | 2xATR Stop: ${trailing_stop:,.2f}"
                     )
         except Exception as e:
             print(f"[STATE NOTICE] Could not read state file: {e}")
 
 
 def save_position_state():
-    """Persists open trade positions to disk."""
+    """Persists open trade positions and dynamic trailing stop state to disk."""
+    trailing_stop = highest_price_since_entry - (ATR_MULTIPLIER * current_atr) if (in_position and current_atr > 0) else 0.0
     try:
         with open(STATE_FILE, "w", encoding="utf-8") as f:
             json.dump(
                 {
                     "in_position": in_position,
                     "entry_price": entry_price,
+                    "highest_price_since_entry": highest_price_since_entry,
+                    "current_atr": current_atr,
+                    "atr_multiplier": ATR_MULTIPLIER,
+                    "trailing_stop_price": max(0.0, trailing_stop),
                     "position_size": position_size,
                     "updated_at": pd.Timestamp.now().isoformat(),
                 },
@@ -184,25 +194,44 @@ def fetch_historical_data(symbol="BTC/USDT", timeframe="1h", limit=100) -> pd.Da
 
 def add_technical_indicators(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Calculates 9-period and 21-period Exponential Moving Averages (EMA).
+    Calculates the mathematically optimal Exponential Moving Averages (EMA 13 & EMA 18)
+    and the 14-period Average True Range (ATR) for volatility-adaptive trailing stops.
     """
-    print("\n--- Calculating Technical Indicators (EMA 9 & EMA 21) ---")
+    print("\n--- Calculating Technical Indicators (EMA 13, EMA 18 & 14-ATR) ---")
 
-    # Calculate Exponential Moving Averages
-    df["ema_9"] = df["close"].ewm(span=9, adjust=False).mean()
-    df["ema_21"] = df["close"].ewm(span=21, adjust=False).mean()
+    # 1. Update to the Mathematically Optimal EMAs
+    df["ema_fast"] = df["close"].ewm(span=13, adjust=False).mean()
+    df["ema_slow"] = df["close"].ewm(span=18, adjust=False).mean()
+    
+    # Aliases for telemetry & dashboard compatibility
+    df["ema_13"] = df["ema_fast"]
+    df["ema_18"] = df["ema_slow"]
+    df["ema_9"] = df["ema_fast"]   # Backward-compatibility alias
+    df["ema_21"] = df["ema_slow"]  # Backward-compatibility alias
 
-    # Drop early NaN periods if any
+    # 2. Calculate True Range and 14-period ATR for Dynamic Stops
+    df["prev_close"] = df["close"].shift(1)
+    df["tr1"] = df["high"] - df["low"]
+    df["tr2"] = (df["high"] - df["prev_close"]).abs()
+    df["tr3"] = (df["low"] - df["prev_close"]).abs()
+
+    # True Range is the maximum of the three TR components
+    df["tr"] = df[["tr1", "tr2", "tr3"]].max(axis=1)
+
+    # 14-period Average True Range (ATR)
+    df["atr"] = df["tr"].rolling(window=14).mean()
+
+    # Drop early NaN periods
     df.dropna(inplace=True)
 
     print("Indicator summary (last 5 bars):")
-    print(df[["close", "ema_9", "ema_21"]].tail())
+    print(df[["close", "ema_fast", "ema_slow", "atr"]].tail())
     return df
 
 
 def generate_signal(df: pd.DataFrame) -> str:
     """
-    Evaluates the last two completed candles to detect EMA 9 / EMA 21 crossovers.
+    Evaluates the last two completed candles to detect EMA 13 / EMA 18 crossovers.
     Returns: 'BUY', 'SELL', or 'HOLD'.
     """
     if len(df) < 2:
@@ -211,17 +240,17 @@ def generate_signal(df: pd.DataFrame) -> str:
     current_candle = df.iloc[-1]
     previous_candle = df.iloc[-2]
 
-    # Condition 1: 9 EMA crosses ABOVE 21 EMA (Bullish Crossover)
+    # Condition 1: Fast EMA (13) crosses ABOVE Slow EMA (18) -> Bullish Crossover
     if (
-        previous_candle["ema_9"] <= previous_candle["ema_21"]
-        and current_candle["ema_9"] > current_candle["ema_21"]
+        previous_candle["ema_fast"] <= previous_candle["ema_slow"]
+        and current_candle["ema_fast"] > current_candle["ema_slow"]
     ):
         return "BUY"
 
-    # Condition 2: 9 EMA crosses BELOW 21 EMA (Bearish Crossover)
+    # Condition 2: Fast EMA (13) crosses BELOW Slow EMA (18) -> Bearish Crossover
     elif (
-        previous_candle["ema_9"] >= previous_candle["ema_21"]
-        and current_candle["ema_9"] < current_candle["ema_21"]
+        previous_candle["ema_fast"] >= previous_candle["ema_slow"]
+        and current_candle["ema_fast"] < current_candle["ema_slow"]
     ):
         return "SELL"
 
@@ -387,70 +416,75 @@ def test_market_sell(symbol="BTC/USDT", order_size=0.01):
 
 
 # ==========================================
-# LEVEL 3: RISK MANAGEMENT & EXIT ENGINE
+# LEVEL 3: DYNAMIC ATR TRAILING STOP ENGINE
 # ==========================================
-def check_exit_conditions(current_price: float, symbol: str = "BTC/USDT") -> bool:
+def check_exit_conditions(current_price: float, latest_atr: float, symbol: str = "BTC/USDT") -> bool:
     """
-    Evaluates whether an active position has breached Stop-Loss or reached Take-Profit.
-    Closes the position if triggered and updates persistent state.
+    Evaluates whether an active position has breached the dynamic ATR Trailing Stop.
+    Trails the highest price reached since trade entry:
+    Trailing Stop Price = Highest Price - (ATR_MULTIPLIER * ATR)
     """
-    global in_position, entry_price, position_size
+    global in_position, entry_price, highest_price_since_entry, current_atr, position_size
 
     if not in_position or entry_price <= 0:
         return False
 
+    current_atr = float(latest_atr)
+    # 1. Update the highest price seen during this trade
+    highest_price_since_entry = max(highest_price_since_entry, entry_price, current_price)
+
+    # 2. Calculate the Dynamic Trailing Stop (e.g., 2x ATR)
+    trailing_stop_price = highest_price_since_entry - (ATR_MULTIPLIER * current_atr)
+
     price_change_pct = (current_price - entry_price) / entry_price
-    print(
-        f"\n[POSITION MONITOR] Open: {position_size} BTC | Entry: ${entry_price:,.2f} | Current: ${current_price:,.2f} | PnL: {price_change_pct:+.2%}"
-    )
+    peak_gain_pct = (highest_price_since_entry - entry_price) / entry_price
 
-    # Condition A: Stop-Loss Triggered
-    if current_price <= entry_price * (1 - STOP_LOSS_PCT):
-        print(
-            f"[EXIT ALERT] Stop-Loss breached at ${current_price:,.2f} ({price_change_pct:.2%}). Selling position to cap risk."
-        )
+    print(f"\n[DYNAMIC RISK MONITOR] Position: {position_size} BTC | Entry: ${entry_price:,.2f} | Peak: ${highest_price_since_entry:,.2f}")
+    print(f"                       Current: ${current_price:,.2f} ({price_change_pct:+.2%}) | Max Unrealized: {peak_gain_pct:+.2%}")
+    print(f"                       Latest 14-ATR: ${current_atr:,.2f} | Trailing Stop Floor: ${trailing_stop_price:,.2f}")
+
+    # 3. Check for Trailing Stop Breach
+    if current_price <= trailing_stop_price:
+        print(f"\n[EXIT ALERT] 🛑 ATR Trailing Stop triggered at ${current_price:,.2f}!")
+        print(f"             Highest Price Reached: ${highest_price_since_entry:,.2f} | ATR: ${current_atr:,.2f} | Stop Floor: ${trailing_stop_price:,.2f}")
         test_market_sell(symbol, order_size=position_size or TRADE_SIZE_BTC)
+
+        # Reset state
         in_position = False
         entry_price = 0.0
+        highest_price_since_entry = 0.0
+        current_atr = 0.0
         position_size = 0.0
         save_position_state()
         return True
 
-    # Condition B: Take-Profit Triggered
-    elif current_price >= entry_price * (1 + TAKE_PROFIT_PCT):
-        print(
-            f"[EXIT ALERT] Take-Profit reached at ${current_price:,.2f} ({price_change_pct:+.2%}). Selling position to lock gains."
-        )
-        test_market_sell(symbol, order_size=position_size or TRADE_SIZE_BTC)
-        in_position = False
-        entry_price = 0.0
-        position_size = 0.0
-        save_position_state()
-        return True
-
-    print(f"[RISK GUARD] Position within safety tolerances (Stop: -{STOP_LOSS_PCT:.1%}, Target: +{TAKE_PROFIT_PCT:.1%}). Maintaining position.")
+    save_position_state()
+    distance_to_stop = current_price - trailing_stop_price
+    print(f"[RISK SHIELD ACTIVE] Price is ${distance_to_stop:,.2f} above trailing stop. Holding position.")
     return False
 
 
 def run_single_cycle(symbol: str = "BTC/USDT", timeframe: str = "1h") -> Dict[str, Any]:
     """Runs a complete evaluation cycle (risk check, indicators, news, decision)."""
-    global in_position, entry_price, position_size
+    global in_position, entry_price, highest_price_since_entry, current_atr, position_size
 
-    # 1. Fetch current market data
-    df = fetch_historical_data(symbol, timeframe=timeframe, limit=50)
+    # 1. Fetch current market data (fetch 60 candles to compute 18 EMA + 14 ATR smoothly)
+    df = fetch_historical_data(symbol, timeframe=timeframe, limit=60)
+    df = add_technical_indicators(df)
     current_price = float(df.iloc[-1]["close"])
+    latest_atr = float(df.iloc[-1]["atr"])
 
-    # 2. Manage existing open positions first (Risk Management)
+    # 2. Manage existing open positions first (Dynamic ATR Trailing Stop)
     if in_position:
-        exited = check_exit_conditions(current_price, symbol=symbol)
+        exited = check_exit_conditions(current_price, latest_atr=latest_atr, symbol=symbol)
         if exited:
             return {"action": "EXIT", "price": current_price}
 
     # 3. Look for new entries if cash is available
     if not in_position:
-        df = add_technical_indicators(df)
         tech_signal = generate_signal(df)
-        print(f"\n[TECHNICAL SIGNAL] EMA Crossover: {tech_signal}")
+        print(f"\n[TECHNICAL SIGNAL] EMA 13/18 Crossover: {tech_signal}")
+        print(f"[MARKET VOLATILITY] Current 14-period ATR: ${latest_atr:,.2f}")
 
         headlines = fetch_latest_news("BTC")
         news_sentiment = analyze_news_sentiment(headlines)
@@ -460,10 +494,12 @@ def run_single_cycle(symbol: str = "BTC/USDT", timeframe: str = "1h") -> Dict[st
         print("      FINAL TRADE DECISION     ")
         print("===============================")
         if tech_signal == "BUY" and news_sentiment == "positive":
-            print(f"[ACTION] Golden Setup: Trend is UP and News is POSITIVE. Executing BUY at ${current_price:,.2f}")
+            print(f"[ACTION] Golden Setup: Trend is UP (EMA 13 > 18) and News is POSITIVE. Executing BUY at ${current_price:,.2f}")
             test_market_buy(symbol, order_size=TRADE_SIZE_BTC)
             in_position = True
             entry_price = current_price
+            highest_price_since_entry = current_price
+            current_atr = latest_atr
             position_size = TRADE_SIZE_BTC
             save_position_state()
             return {"action": "BUY", "price": current_price}
@@ -486,7 +522,7 @@ def run_daemon_loop(symbol: str = "BTC/USDT", timeframe: str = "1h", max_iterati
     """
     verify_connection()
     print(f"\n--- Starting Autonomous Continuous Trading Daemon ({symbol}) ---")
-    print(f"Risk Rules: Stop-Loss: -{STOP_LOSS_PCT:.1%} | Take-Profit: +{TAKE_PROFIT_PCT:.1%} | Position Size: {TRADE_SIZE_BTC} BTC")
+    print(f"Risk Rules: Dynamic ATR Trailing Stop: {ATR_MULTIPLIER}x ATR | Position Size: {TRADE_SIZE_BTC} BTC")
     print(f"Poll Interval: {POLL_INTERVAL_SECONDS} seconds | State Persistence: {STATE_FILE.name}")
 
     iterations = 0

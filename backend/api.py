@@ -36,8 +36,7 @@ STATE_FILE = repo_root / ".state.json"
 def get_bot_status() -> Dict[str, Any]:
     """Returns bot daemon status, position memory, live ticker price, and wallet balances."""
     from backend.bot import (
-        STOP_LOSS_PCT,
-        TAKE_PROFIT_PCT,
+        ATR_MULTIPLIER,
         TRADE_SIZE_BTC,
         active_mode,
         exchange,
@@ -47,6 +46,10 @@ def get_bot_status() -> Dict[str, Any]:
     state = {
         "in_position": False,
         "entry_price": 0.0,
+        "highest_price_since_entry": 0.0,
+        "current_atr": 0.0,
+        "atr_multiplier": ATR_MULTIPLIER,
+        "trailing_stop_price": 0.0,
         "position_size": 0.0,
         "updated_at": None,
     }
@@ -72,11 +75,15 @@ def get_bot_status() -> Dict[str, Any]:
     # Compute unrealized PnL if in position
     unrealized_pnl_pct = 0.0
     unrealized_pnl_usd = 0.0
+    trailing_stop = float(state.get("trailing_stop_price", 0.0))
     if state.get("in_position") and state.get("entry_price", 0.0) > 0:
         entry = state["entry_price"]
         size = state.get("position_size", TRADE_SIZE_BTC)
         unrealized_pnl_pct = (current_price - entry) / entry
         unrealized_pnl_usd = (current_price - entry) * size
+        if trailing_stop <= 0 and state.get("current_atr", 0.0) > 0:
+            peak = state.get("highest_price_since_entry", entry)
+            trailing_stop = max(0.0, peak - (ATR_MULTIPLIER * state["current_atr"]))
 
     return {
         "status": "online",
@@ -89,10 +96,11 @@ def get_bot_status() -> Dict[str, Any]:
             "percent": unrealized_pnl_pct,
             "usd": unrealized_pnl_usd,
         },
+        "trailing_stop_price": trailing_stop,
         "balances": balances,
         "risk_rules": {
-            "stop_loss_pct": STOP_LOSS_PCT,
-            "take_profit_pct": TAKE_PROFIT_PCT,
+            "strategy": "ATR Trailing Stop",
+            "atr_multiplier": ATR_MULTIPLIER,
             "trade_size_btc": TRADE_SIZE_BTC,
         },
     }
@@ -100,11 +108,11 @@ def get_bot_status() -> Dict[str, Any]:
 
 @app.get("/api/candles")
 def get_chart_candles(limit: int = 30) -> Dict[str, Any]:
-    """Returns recent OHLCV candles formatted with EMA 9 & EMA 21 for Recharts charts."""
+    """Returns recent OHLCV candles formatted with EMA 13, EMA 18 & ATR for charts."""
     from backend.bot import add_technical_indicators, fetch_historical_data
 
     try:
-        df = fetch_historical_data("BTC/USDT", timeframe="1h", limit=limit + 21)
+        df = fetch_historical_data("BTC/USDT", timeframe="1h", limit=limit + 30)
         df = add_technical_indicators(df)
         recent = df.tail(limit).reset_index()
 
@@ -114,8 +122,13 @@ def get_chart_candles(limit: int = 30) -> Dict[str, Any]:
                 {
                     "time": row["timestamp"].strftime("%H:%M"),
                     "close": round(float(row["close"]), 2),
-                    "ema_9": round(float(row["ema_9"]), 2),
-                    "ema_21": round(float(row["ema_21"]), 2),
+                    "ema_fast": round(float(row["ema_fast"]), 2),
+                    "ema_slow": round(float(row["ema_slow"]), 2),
+                    "ema_13": round(float(row["ema_fast"]), 2),
+                    "ema_18": round(float(row["ema_slow"]), 2),
+                    "ema_9": round(float(row["ema_fast"]), 2),   # Backward compatibility
+                    "ema_21": round(float(row["ema_slow"]), 2),  # Backward compatibility
+                    "atr": round(float(row["atr"]), 2),
                     "volume": round(float(row["volume"]), 2),
                 }
             )

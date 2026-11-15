@@ -397,20 +397,42 @@ This document serves as the single source of truth for tracking every architectu
 
 ---
 
+### [Step 019] Live EMA 13/18 Migration & Dynamic 2x ATR Trailing Stop Volatility Shield
+
+- **Timestamp:** 2026-11-15T22:58:00+05:30
+- **Category:** Risk Management & Strategy Upgrade / ATR Trailing Stop
+- **Action:**
+  - Upgraded technical indicators in [`backend/bot.py`](file:///home/abinash/Desktop/agent-flow/backend/bot.py) and [`backend/api.py`](file:///home/abinash/Desktop/agent-flow/backend/api.py) to the mathematically proven **EMA 13 (Fast)** and **EMA 18 (Slow)**.
+  - Implemented 14-period **Average True Range (ATR)** calculation measuring live market volatility.
+  - Upgraded position memory in [`.state.json`](file:///home/abinash/Desktop/agent-flow/.state.json) to persist `highest_price_since_entry`, `current_atr`, and dynamic `trailing_stop_price`.
+  - Replaced static 2% stop-loss with dynamic **2x ATR Trailing Stop**:
+    - $\text{Trailing Stop Price} = \text{Highest Price Since Entry} - (2 \times \text{ATR}_{14})$.
+    - Ratchets stop floor upward with rising price action while providing dynamic breathing room during volatile noise.
+  - Updated React monitoring dashboard in [`frontend/src/App.tsx`](file:///home/abinash/Desktop/agent-flow/frontend/src/App.tsx) to chart EMA 13/18 and display live ATR Trailing Stop telemetry.
+  - Verified with live execution cycle (`make bot`): verified real-time 14-ATR calculation ($1,698.99), crossover calculation, and defensive capital preservation.
+- **Files Modified / Created:**
+  - [`/home/abinash/Desktop/agent-flow/backend/bot.py`](file:///home/abinash/Desktop/agent-flow/backend/bot.py)
+  - [`/home/abinash/Desktop/agent-flow/backend/api.py`](file:///home/abinash/Desktop/agent-flow/backend/api.py)
+  - [`/home/abinash/Desktop/agent-flow/frontend/src/App.tsx`](file:///home/abinash/Desktop/agent-flow/frontend/src/App.tsx)
+  - [`/home/abinash/Desktop/agent-flow/TRACKING.md`](file:///home/abinash/Desktop/agent-flow/TRACKING.md)
+- **Status:** Completed
+
+---
+
 ## 3. Active Decisions & Next Steps
 
-| Item                          | Description                                                                            | Status        |
-| :---------------------------- | :------------------------------------------------------------------------------------- | :------------ |
-| **Git Author Identity**       | Configured repo-local author details matching authenticated GitHub account.            | Completed     |
-| **Remote Repository Sync**    | Pushed initial commit to `origin/main` on GitHub (`Abinash4567/agent-flow`).           | Completed     |
-| **Code Quality & Tooling**    | Prettier, ESLint, Husky, lint-staged, VS Code settings configured.                     | Completed     |
-| **L0 Market Connection**      | Connected to Binance Spot Testnet via `ccxt` with dual auto-detection fallback.        | Completed     |
-| **L1 Order & Data Pipeline**  | Verified automated market buy execution (`Order #13870713`) & OHLCV DataFrame fetch.   | Completed     |
-| **L2 Quantitative Trigger**   | Implemented EMA 9 / EMA 21 indicator pipeline & signal generation (`BUY/SELL/HOLD`).   | Completed     |
-| **L2 NLP News Trigger**       | Integrated FinBERT sentiment analyzer & multi-source live crypto news feeds.           | Completed     |
-| **L2 Combined Edge Decision** | Verified dual-condition filter preventing counter-trend entries on divergent signals.  | Completed     |
-| **L3 Risk Management**        | Implemented Stop-Loss (-2%) & Take-Profit (+6%) exit engine with simulated executions. | Completed     |
-| **L3 Continuous Daemon**      | Built persistent daemon loop and PM2 production process configuration.                 | Completed     |
-| **L4 Monitoring Dashboard**   | Vite + React + Tailwind + Recharts dashboard with FastAPI real-time bridge.            | Completed     |
-| **VectorBT Backtest Engine**  | Matrix parameter optimization proved EMA 13/18 yields 269.4% return (vs 183.97%).      | Completed     |
-| **Next Step: Live Strategy**  | Update `bot.py` indicators to winning 13/18 EMA or implement ATR trailing stop / TWAP. | Open for User |
+| Item                          | Description                                                                             | Status        |
+| :---------------------------- | :-------------------------------------------------------------------------------------- | :------------ |
+| **Git Author Identity**       | Configured repo-local author details matching authenticated GitHub account.             | Completed     |
+| **Remote Repository Sync**    | Pushed initial commit to `origin/main` on GitHub (`Abinash4567/agent-flow`).            | Completed     |
+| **Code Quality & Tooling**    | Prettier, ESLint, Husky, lint-staged, VS Code settings configured.                      | Completed     |
+| **L0 Market Connection**      | Connected to Binance Spot Testnet via `ccxt` with dual auto-detection fallback.         | Completed     |
+| **L1 Order & Data Pipeline**  | Verified automated market buy execution (`Order #13870713`) & OHLCV DataFrame fetch.    | Completed     |
+| **L2 Quantitative Trigger**   | Upgraded to mathematically optimal EMA 13 / EMA 18 indicator pipeline.                  | Completed     |
+| **L2 NLP News Trigger**       | Integrated FinBERT sentiment analyzer & multi-source live crypto news feeds.            | Completed     |
+| **L2 Combined Edge Decision** | Verified dual-condition filter preventing counter-trend entries on divergent signals.   | Completed     |
+| **L3 Dynamic Risk Engine**    | Implemented 2x ATR dynamic trailing stop with persistent high-watermark state tracking. | Completed     |
+| **L3 Continuous Daemon**      | Built persistent daemon loop and PM2 production process configuration.                  | Completed     |
+| **L4 Monitoring Dashboard**   | Vite + React + Tailwind + Recharts dashboard updated with EMA 13/18 and ATR metrics.    | Completed     |
+| **VectorBT Backtest Engine**  | Matrix parameter optimization proved EMA 13/18 yields 269.4% return (vs 183.97%).       | Completed     |
+| **Next Step: Smart Routing**  | Implement TWAP order-slicing execution engine (`backend/execution.py`).                 | Open for User |
