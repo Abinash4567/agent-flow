@@ -1,0 +1,22 @@
+{
+  "$schema": "https://schema.freqtrade.io/schema.json",
+  "exchange": {
+    "pair_whitelist": [
+      "BTC/USDT",
+      "ETH/USDT",
+      "SOL/USDT",
+      "XRP/USDT",
+      "ZEC/USDT",
+      "BNB/USDT",
+      "NEAR/USDT",
+      "HYPE/USDT",
+      "DOGE/USDT",
+      "UNI/USDT"
+    ]
+  },
+  "pairlists": [
+    {
+      "method": "StaticPairList"
+    }
+  ]
+}

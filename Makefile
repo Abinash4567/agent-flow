@@ -1,18 +1,19 @@
-.PHONY: help setup dev dev-backend dev-frontend build test lint format bot daemon backtest freqtrade-download freqtrade-trade freqtrade-backtest pm2-start pm2-stop pm2-restart pm2-status pm2-logs api clean
+.PHONY: help setup dev dev-backend dev-frontend build test lint format bot daemon backtest freqtrade-test-pairlist freqtrade-download freqtrade-trade freqtrade-backtest pm2-start pm2-stop pm2-restart pm2-status pm2-logs api clean
 
 help:
 	@echo "Available commands:"
-	@echo "  make setup              - Initial environment setup"
-	@echo "  make dev                - Run FastAPI backend and React frontend concurrently"
-	@echo "  make dev-backend        - Run FastAPI backend bridge"
-	@echo "  make dev-frontend       - Run Vite React frontend dashboard"
-	@echo "  make api                - Run FastAPI backend server directly"
-	@echo "  make bot                - Run a single evaluation cycle of the trading bot"
-	@echo "  make daemon             - Run continuous trading bot daemon in foreground"
-	@echo "  make backtest           - Run VectorBT historical backtest and parameter scan"
-	@echo "  make freqtrade-download - Download historical candles for FreqAI model training"
-	@echo "  make freqtrade-trade    - Launch adaptive FreqAI ML trading agent (LightGBM)"
-	@echo "  make freqtrade-backtest - Run FreqAI machine learning backtest"
+	@echo "  make setup                   - Initial environment setup"
+	@echo "  make dev                     - Run FastAPI backend and React frontend concurrently"
+	@echo "  make dev-backend             - Run FastAPI backend bridge"
+	@echo "  make dev-frontend            - Run Vite React frontend dashboard"
+	@echo "  make api                     - Run FastAPI backend server directly"
+	@echo "  make bot                     - Run a single evaluation cycle of the trading bot"
+	@echo "  make daemon                  - Run continuous trading bot daemon in foreground"
+	@echo "  make backtest                - Run VectorBT historical backtest and parameter scan"
+	@echo "  make freqtrade-test-pairlist - Test dynamic VolumePairList resolution on Binance"
+	@echo "  make freqtrade-download      - Download historical candles for Top 10 pairs"
+	@echo "  make freqtrade-trade         - Launch adaptive FreqAI ML trading agent (LightGBM)"
+	@echo "  make freqtrade-backtest      - Run FreqAI machine learning backtest"
 	@echo "  make pm2-start          - Launch bot daemon as a background PM2 service"
 	@echo "  make pm2-stop           - Stop PM2 bot daemon"
 	@echo "  make pm2-status         - Check PM2 bot daemon status"
@@ -35,14 +36,17 @@ daemon:
 backtest:
 	@.venv/bin/python3 backtest.py
 
+freqtrade-test-pairlist:
+	@.venv/bin/freqtrade test-pairlist --config config_freqai.json
+
 freqtrade-download:
-	@.venv/bin/freqtrade download-data --config config_freqai.json --days 45 -t 1h
+	@.venv/bin/freqtrade download-data --config config_freqai.json --pairs BTC/USDT ETH/USDT SOL/USDT XRP/USDT ZEC/USDT BNB/USDT NEAR/USDT HYPE/USDT DOGE/USDT UNI/USDT --days 45 -t 1h
 
 freqtrade-trade:
 	@.venv/bin/freqtrade trade --config config_freqai.json --strategy FreqaiCombinedEdgeStrategy --freqaimodel LightGBMRegressor
 
 freqtrade-backtest:
-	@.venv/bin/freqtrade backtesting --config config_freqai.json --strategy FreqaiCombinedEdgeStrategy --freqaimodel LightGBMRegressor
+	@.venv/bin/freqtrade backtesting --config config_freqai.json --config config_backtest.json --strategy FreqaiCombinedEdgeStrategy --freqaimodel LightGBMRegressor
 
 pm2-start:
 	@pm2 start ecosystem.config.cjs

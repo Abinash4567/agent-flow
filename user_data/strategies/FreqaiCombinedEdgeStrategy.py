@@ -65,16 +65,21 @@ class FreqaiCombinedEdgeStrategy(IStrategy):
         Retrieves live FinBERT sentiment score normalized to a numerical feature:
         +1.0 (Positive), 0.0 (Neutral), -1.0 (Negative).
         """
+        if "global" in self._sentiment_cache:
+            return self._sentiment_cache["global"]
         try:
             from backend.bot import analyze_news_sentiment, fetch_latest_news
 
             headlines = fetch_latest_news("BTC")
             sentiment_str = analyze_news_sentiment(headlines)
             if sentiment_str == "positive":
-                return 1.0
+                score = 1.0
             elif sentiment_str == "negative":
-                return -1.0
-            return 0.0
+                score = -1.0
+            else:
+                score = 0.0
+            self._sentiment_cache["global"] = score
+            return score
         except Exception as e:
             logger.debug(f"FinBERT news fetch fallback: {e}")
             return 0.0

@@ -25,8 +25,11 @@
     "ccxt_async_config": {
       "enableRateLimit": true
     },
-    "pair_whitelist": ["BTC/USDT"],
-    "pair_blacklist": []
+    "pair_whitelist": [".*/USDT"],
+    "pair_blacklist": [
+      "(USDC|BUSD|FDUSD|TUSD|USDP|DAI|EUR|GBP|USD1|USDE|USDD|PYUSD|AEUR|USTC)/.*",
+      ".*(DOWN|UP|BEAR|BULL)/.*"
+    ]
   },
   "entry_pricing": {
     "price_side": "same",
@@ -45,7 +48,21 @@
   },
   "pairlists": [
     {
-      "method": "StaticPairList"
+      "method": "VolumePairList",
+      "number_assets": 10,
+      "sort_key": "quoteVolume",
+      "min_value": 0,
+      "refresh_period": 1800
+    },
+    {
+      "method": "AgeFilter",
+      "min_days_listed": 14
+    },
+    {
+      "method": "VolatilityFilter",
+      "min_volatility": 0.02,
+      "max_volatility": 0.75,
+      "lookback_days": 3
     }
   ],
   "freqai": {

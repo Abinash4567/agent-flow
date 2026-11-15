@@ -11,35 +11,37 @@ This document serves as the single source of truth for tracking every architectu
 
 ## 1. Directory & File Reference Map
 
-| Path                                                                                           | Type      | Description                                                               |
-| :--------------------------------------------------------------------------------------------- | :-------- | :------------------------------------------------------------------------ |
-| [`/`](file:///home/abinash/Desktop/agent-flow)                                                 | Directory | Repository root                                                           |
-| [`backend/`](file:///home/abinash/Desktop/agent-flow/backend)                                  | Directory | Backend service workspace (polyglot / stack-agnostic)                     |
-| [`backend/README.md`](file:///home/abinash/Desktop/agent-flow/backend/README.md)               | File      | Backend documentation and runtime initialization guides                   |
-| [`backend/requirements.txt`](file:///home/abinash/Desktop/agent-flow/backend/requirements.txt) | File      | Python dependencies (`ccxt`, `pandas`, `python-dotenv`)                   |
-| [`backend/bot.py`](file:///home/abinash/Desktop/agent-flow/backend/bot.py)                     | File      | Level 0 exchange verification & market data script                        |
-| [`bot.py`](file:///home/abinash/Desktop/agent-flow/bot.py)                                     | File      | Root entrypoint proxy for `backend/bot.py`                                |
-| [`frontend/`](file:///home/abinash/Desktop/agent-flow/frontend)                                | Directory | Frontend client workspace (polyglot / stack-agnostic)                     |
-| [`frontend/README.md`](file:///home/abinash/Desktop/agent-flow/frontend/README.md)             | File      | Frontend documentation and framework setup guides                         |
-| [`shared/`](file:///home/abinash/Desktop/agent-flow/shared)                                    | Directory | Shared API contracts (OpenAPI/Protobuf), schemas, and utilities           |
-| [`shared/README.md`](file:///home/abinash/Desktop/agent-flow/shared/README.md)                 | File      | Guidelines for shared data contracts and types                            |
-| [`.dockerignore`](file:///home/abinash/Desktop/agent-flow/.dockerignore)                       | File      | Build context excludes for container images                               |
-| [`.editorconfig`](file:///home/abinash/Desktop/agent-flow/.editorconfig)                       | File      | Cross-IDE / cross-language formatting standards                           |
-| [`.env.example`](file:///home/abinash/Desktop/agent-flow/.env.example)                         | File      | Base environment variable declarations                                    |
-| [`.gitignore`](file:///home/abinash/Desktop/agent-flow/.gitignore)                             | File      | Polyglot ignore rules (Node, Python, Go, Rust, Java, Docker, OS, IDEs)    |
-| [`docker-compose.yml`](file:///home/abinash/Desktop/agent-flow/docker-compose.yml)             | File      | Multi-service local container orchestrator                                |
-| [`Makefile`](file:///home/abinash/Desktop/agent-flow/Makefile)                                 | File      | Unified command runner (`setup`, `dev`, `build`, `test`, `lint`, `clean`) |
-| [`ecosystem.config.cjs`](file:///home/abinash/Desktop/agent-flow/ecosystem.config.cjs)         | File      | PM2 process manager configuration for continuous daemon operation         |
-| [`package.json`](file:///home/abinash/Desktop/agent-flow/package.json)                         | File      | Root tooling scripts and devDependencies                                  |
-| [`.prettierrc.json`](file:///home/abinash/Desktop/agent-flow/.prettierrc.json)                 | File      | Code formatter rules (tabs, quotes, width, line endings)                  |
-| [`.prettierignore`](file:///home/abinash/Desktop/agent-flow/.prettierignore)                   | File      | Excluded directories for Prettier formatting                              |
-| [`eslint.config.mjs`](file:///home/abinash/Desktop/agent-flow/eslint.config.mjs)               | File      | ESLint 9 modern flat configuration for code quality                       |
-| [`.lintstagedrc.json`](file:///home/abinash/Desktop/agent-flow/.lintstagedrc.json)             | File      | Staged files pre-commit linter and formatter configuration                |
-| [`.husky/pre-commit`](file:///home/abinash/Desktop/agent-flow/.husky/pre-commit)               | File      | Git pre-commit hook triggering lint-staged                                |
-| [`.vscode/settings.json`](file:///home/abinash/Desktop/agent-flow/.vscode/settings.json)       | File      | VS Code workspace settings (format-on-save, autofix)                      |
-| [`.vscode/extensions.json`](file:///home/abinash/Desktop/agent-flow/.vscode/extensions.json)   | File      | Recommended VS Code extensions (Prettier, ESLint, EditorConfig)           |
-| [`README.md`](file:///home/abinash/Desktop/agent-flow/README.md)                               | File      | Root monorepo overview and quickstart guide                               |
-| [`TRACKING.md`](file:///home/abinash/Desktop/agent-flow/TRACKING.md)                           | File      | Detailed step-by-step execution and audit log                             |
+| Path                                                                                           | Type      | Description                                                                |
+| :--------------------------------------------------------------------------------------------- | :-------- | :------------------------------------------------------------------------- |
+| [`/`](file:///home/abinash/Desktop/agent-flow)                                                 | Directory | Repository root                                                            |
+| [`backend/`](file:///home/abinash/Desktop/agent-flow/backend)                                  | Directory | Backend service workspace (polyglot / stack-agnostic)                      |
+| [`backend/README.md`](file:///home/abinash/Desktop/agent-flow/backend/README.md)               | File      | Backend documentation and runtime initialization guides                    |
+| [`backend/requirements.txt`](file:///home/abinash/Desktop/agent-flow/backend/requirements.txt) | File      | Python dependencies (`ccxt`, `pandas`, `python-dotenv`)                    |
+| [`backend/bot.py`](file:///home/abinash/Desktop/agent-flow/backend/bot.py)                     | File      | Level 0 exchange verification & market data script                         |
+| [`bot.py`](file:///home/abinash/Desktop/agent-flow/bot.py)                                     | File      | Root entrypoint proxy for `backend/bot.py`                                 |
+| [`frontend/`](file:///home/abinash/Desktop/agent-flow/frontend)                                | Directory | Frontend client workspace (polyglot / stack-agnostic)                      |
+| [`frontend/README.md`](file:///home/abinash/Desktop/agent-flow/frontend/README.md)             | File      | Frontend documentation and framework setup guides                          |
+| [`shared/`](file:///home/abinash/Desktop/agent-flow/shared)                                    | Directory | Shared API contracts (OpenAPI/Protobuf), schemas, and utilities            |
+| [`shared/README.md`](file:///home/abinash/Desktop/agent-flow/shared/README.md)                 | File      | Guidelines for shared data contracts and types                             |
+| [`.dockerignore`](file:///home/abinash/Desktop/agent-flow/.dockerignore)                       | File      | Build context excludes for container images                                |
+| [`.editorconfig`](file:///home/abinash/Desktop/agent-flow/.editorconfig)                       | File      | Cross-IDE / cross-language formatting standards                            |
+| [`.env.example`](file:///home/abinash/Desktop/agent-flow/.env.example)                         | File      | Base environment variable declarations                                     |
+| [`.gitignore`](file:///home/abinash/Desktop/agent-flow/.gitignore)                             | File      | Polyglot ignore rules (Node, Python, Go, Rust, Java, Docker, OS, IDEs)     |
+| [`docker-compose.yml`](file:///home/abinash/Desktop/agent-flow/docker-compose.yml)             | File      | Multi-service local container orchestrator                                 |
+| [`Makefile`](file:///home/abinash/Desktop/agent-flow/Makefile)                                 | File      | Unified command runner (`setup`, `dev`, `build`, `test`, `lint`, `clean`)  |
+| [`ecosystem.config.cjs`](file:///home/abinash/Desktop/agent-flow/ecosystem.config.cjs)         | File      | PM2 process manager configuration for continuous daemon operation          |
+| [`package.json`](file:///home/abinash/Desktop/agent-flow/package.json)                         | File      | Root tooling scripts and devDependencies                                   |
+| [`.prettierrc.json`](file:///home/abinash/Desktop/agent-flow/.prettierrc.json)                 | File      | Code formatter rules (tabs, quotes, width, line endings)                   |
+| [`.prettierignore`](file:///home/abinash/Desktop/agent-flow/.prettierignore)                   | File      | Excluded directories for Prettier formatting                               |
+| [`eslint.config.mjs`](file:///home/abinash/Desktop/agent-flow/eslint.config.mjs)               | File      | ESLint 9 modern flat configuration for code quality                        |
+| [`.lintstagedrc.json`](file:///home/abinash/Desktop/agent-flow/.lintstagedrc.json)             | File      | Staged files pre-commit linter and formatter configuration                 |
+| [`.husky/pre-commit`](file:///home/abinash/Desktop/agent-flow/.husky/pre-commit)               | File      | Git pre-commit hook triggering lint-staged                                 |
+| [`.vscode/settings.json`](file:///home/abinash/Desktop/agent-flow/.vscode/settings.json)       | File      | VS Code workspace settings (format-on-save, autofix)                       |
+| [`.vscode/extensions.json`](file:///home/abinash/Desktop/agent-flow/.vscode/extensions.json)   | File      | Recommended VS Code extensions (Prettier, ESLint, EditorConfig)            |
+| [`README.md`](file:///home/abinash/Desktop/agent-flow/README.md)                               | File      | Root monorepo overview and quickstart guide                                |
+| [`TRACKING.md`](file:///home/abinash/Desktop/agent-flow/TRACKING.md)                           | File      | Detailed step-by-step execution and audit log                              |
+| [`config_freqai.json`](file:///home/abinash/Desktop/agent-flow/config_freqai.json)             | File      | Dynamic FreqAI configuration (VolumePairList, AgeFilter, VolatilityFilter) |
+| [`config_backtest.json`](file:///home/abinash/Desktop/agent-flow/config_backtest.json)         | File      | Static pairlist override configuration for multi-asset FreqAI backtests    |
 
 ---
 
@@ -468,6 +470,32 @@ This document serves as the single source of truth for tracking every architectu
 
 ---
 
+### [Step 022] Multi-Asset Scaling & Dynamic Top 10 Crypto Universe Scanning
+
+- **Timestamp:** 2026-11-15T23:32:00+05:30
+- **Category:** Dynamic Asset Selection / Multi-Pair Machine Learning
+- **Action:**
+  - Upgraded [`config_freqai.json`](file:///home/abinash/Desktop/agent-flow/config_freqai.json) from single-pair static tracking to an automated multi-filter dynamic pairlist pipeline:
+    - **`VolumePairList`**: Dynamically ranks and selects the top 10 most actively traded pairs by `quoteVolume` with 1,800-second (30-minute) cache refresh cycles.
+    - **`AgeFilter`**: Enforces a minimum listing age of 14 days (`min_days_listed: 14`) to protect against brand new, untrusted micro-cap listings.
+    - **`VolatilityFilter`**: Mandates 3-day volatility bounds between 2% and 75% (`min_volatility: 0.02`, `max_volatility: 0.75`), automatically filtering out dead coins or extreme low-volatility synthetic pairs.
+    - **Stablecoin & Leveraged Blacklist**: Configured regex filters eliminating fiat/stablecoins (`USDC`, `BUSD`, `FDUSD`, `TUSD`, `USDP`, `DAI`, `EUR`, `GBP`, `USD1`, `USDE`, `USDD`, `PYUSD`, `AEUR`, `USTC`) and leveraged token variants (`DOWN`, `UP`, `BEAR`, `BULL`).
+  - Created [`config_backtest.json`](file:///home/abinash/Desktop/agent-flow/config_backtest.json) to supply static pair overrides during offline historical simulation (addressing Freqtrade's requirement that dynamic order-book pairlists are bypassed during backtesting).
+  - Optimized [`user_data/strategies/FreqaiCombinedEdgeStrategy.py`](file:///home/abinash/Desktop/agent-flow/user_data/strategies/FreqaiCombinedEdgeStrategy.py) with global NLP sentiment caching to eliminate redundant external HTTP and FinBERT inference calls across multi-pair evaluation loops.
+  - Updated [`Makefile`](file:///home/abinash/Desktop/agent-flow/Makefile) with `make freqtrade-test-pairlist`, updated `make freqtrade-download` for top 10 pairs, and linked `make freqtrade-backtest` to combine both configs.
+  - Verified dynamic resolution with `make freqtrade-test-pairlist`:
+    - Binance resolved top 10 universe: `['BTC/USDT', 'ETH/USDT', 'SOL/USDT', 'XRP/USDT', 'ZEC/USDT', 'BNB/USDT', 'NEAR/USDT', 'HYPE/USDT', 'DOGE/USDT', 'UNI/USDT']`.
+  - Executed historical candle download across the universe and validated multi-asset model training and backtesting execution with `make freqtrade-backtest`.
+- **Files Modified / Created:**
+  - [`/home/abinash/Desktop/agent-flow/config_freqai.json`](file:///home/abinash/Desktop/agent-flow/config_freqai.json)
+  - [`/home/abinash/Desktop/agent-flow/config_backtest.json`](file:///home/abinash/Desktop/agent-flow/config_backtest.json)
+  - [`/home/abinash/Desktop/agent-flow/user_data/strategies/FreqaiCombinedEdgeStrategy.py`](file:///home/abinash/Desktop/agent-flow/user_data/strategies/FreqaiCombinedEdgeStrategy.py)
+  - [`/home/abinash/Desktop/agent-flow/Makefile`](file:///home/abinash/Desktop/agent-flow/Makefile)
+  - [`/home/abinash/Desktop/agent-flow/TRACKING.md`](file:///home/abinash/Desktop/agent-flow/TRACKING.md)
+- **Status:** Completed
+
+---
+
 ## 3. Active Decisions & Next Steps
 
 | Item                          | Description                                                                             | Status        |
@@ -486,4 +514,5 @@ This document serves as the single source of truth for tracking every architectu
 | **VectorBT Backtest Engine**  | Matrix parameter optimization proved EMA 13/18 yields 269.4% return (vs 183.97%).       | Completed     |
 | **TWAP Execution Engine**     | Asynchronous thread-based order slicing with VWAP reporting verified on live testnet.   | Completed     |
 | **Freqtrade & FreqAI Agent**  | Adaptive LightGBM regressor continuously retraining on EMA 13/18, ATR & FinBERT scores. | Completed     |
-| **Next Step Options**         | Scale to Top 10 multi-asset scanning OR deploy architecture to dedicated Cloud VPS.     | Open for User |
+| **Multi-Asset Universe**      | Top 10 quoteVolume dynamic scanning with Age and Volatility filters verified.           | Completed     |
+| **Next Step Options**         | Live/Dry-run multi-asset paper trading OR containerized Cloud VPS deployment.           | Open for User |
