@@ -1,0 +1,84 @@
+{
+  "$schema": "https://schema.freqtrade.io/schema.json",
+  "max_open_trades": 3,
+  "stake_currency": "USDT",
+  "stake_amount": 500,
+  "tradable_balance_ratio": 0.99,
+  "fiat_display_currency": "USD",
+  "dry_run": true,
+  "dry_run_wallet": 10000,
+  "cancel_open_orders_on_exit": true,
+  "timeframe": "1h",
+  "trailing_stop": false,
+  "use_custom_stoploss": true,
+  "unfilledtimeout": {
+    "entry": 10,
+    "exit": 30
+  },
+  "exchange": {
+    "name": "binance",
+    "key": "",
+    "secret": "",
+    "ccxt_config": {
+      "enableRateLimit": true
+    },
+    "ccxt_async_config": {
+      "enableRateLimit": true
+    },
+    "pair_whitelist": ["BTC/USDT"],
+    "pair_blacklist": []
+  },
+  "entry_pricing": {
+    "price_side": "same",
+    "use_order_book": true,
+    "order_book_top": 1,
+    "price_last_balance": 0.0,
+    "check_depth_of_market": {
+      "enabled": false,
+      "bids_to_ask_delta": 1
+    }
+  },
+  "exit_pricing": {
+    "price_side": "other",
+    "use_order_book": true,
+    "order_book_top": 1
+  },
+  "pairlists": [
+    {
+      "method": "StaticPairList"
+    }
+  ],
+  "freqai": {
+    "enabled": true,
+    "purge_old_models": 4,
+    "train_period_days": 30,
+    "backtest_period_days": 7,
+    "save_backtest_models": false,
+    "live_retrain_hours": 4,
+    "identifier": "combined-edge-ai",
+    "feature_parameters": {
+      "include_timeframes": ["1h"],
+      "include_corr_pairlist": [],
+      "label_period_candles": 10,
+      "include_shifted_candles": 1,
+      "DI_threshold": 0.9,
+      "weight_factor": 0.9,
+      "principal_component_analysis": false,
+      "use_SVM_to_remove_outliers": false,
+      "indicator_periods_candles": [14]
+    },
+    "data_split_parameters": {
+      "test_size": 0.25,
+      "random_state": 42
+    },
+    "model_training_parameters": {
+      "n_estimators": 100,
+      "learning_rate": 0.05
+    }
+  },
+  "bot_name": "agent-flow-freqai",
+  "initial_state": "running",
+  "internals": {
+    "process_throttle_secs": 5
+  }
+}

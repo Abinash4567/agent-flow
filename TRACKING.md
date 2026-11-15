@@ -444,6 +444,30 @@ This document serves as the single source of truth for tracking every architectu
 
 ---
 
+### [Step 021] Freqtrade & FreqAI Adaptive Machine Learning Agent Migration
+
+- **Timestamp:** 2026-11-15T23:24:00+05:30
+- **Category:** Machine Learning / Adaptive Intelligence (FreqAI)
+- **Action:**
+  - Cloned and deployed the official **Freqtrade** framework with C-extension compilation (TA-Lib 0.8.3, LightGBM 4.7.0, Scikit-learn 1.9.1, XGBoost 3.4.1, DataSieve 0.1.9) on Python 3.14.
+  - Authored [`user_data/strategies/FreqaiCombinedEdgeStrategy.py`](file:///home/abinash/Desktop/agent-flow/user_data/strategies/FreqaiCombinedEdgeStrategy.py) migrating the entire Combined Edge architecture:
+    - **Feature Engineering (`feature_engineering_expand_all`)**: Injects `%-ema_13`, `%-ema_18`, `%-ema_ratio`, `%-atr_14`, `%-atr_pct`, `%-rsi_14`, `%-macd`, and FinBERT live sentiment `%-news_sentiment`.
+    - **AI Targets (`set_freqai_targets`)**: Sets predictive target `&target_roi` forecasting percentage return over the next 10 candles.
+    - **Adaptive Entry/Exit**: LightGBM model decides entries based on positive expected forward ROI (`do_predict == 1` & `&target_roi > 0.005`) with macro trend filters.
+    - **Dynamic Risk**: Implemented volatility-adaptive 2x ATR trailing stop via Freqtrade `custom_stoploss`.
+  - Configured [`config_freqai.json`](file:///home/abinash/Desktop/agent-flow/config_freqai.json) with continuous rolling retraining loop (`train_period_days: 30`, `live_retrain_hours: 4`).
+  - Added Makefile orchestration targets: `make freqtrade-download`, `make freqtrade-trade`, `make freqtrade-backtest`.
+  - Verified with live historical data ingestion (Binance BTC/USDT 1h spot) and FreqAI model training + backtest execution.
+- **Files Modified / Created:**
+  - [`/home/abinash/Desktop/agent-flow/user_data/strategies/FreqaiCombinedEdgeStrategy.py`](file:///home/abinash/Desktop/agent-flow/user_data/strategies/FreqaiCombinedEdgeStrategy.py)
+  - [`/home/abinash/Desktop/agent-flow/config_freqai.json`](file:///home/abinash/Desktop/agent-flow/config_freqai.json)
+  - [`/home/abinash/Desktop/agent-flow/Makefile`](file:///home/abinash/Desktop/agent-flow/Makefile)
+  - [`/home/abinash/Desktop/agent-flow/.gitignore`](file:///home/abinash/Desktop/agent-flow/.gitignore)
+  - [`/home/abinash/Desktop/agent-flow/TRACKING.md`](file:///home/abinash/Desktop/agent-flow/TRACKING.md)
+- **Status:** Completed
+
+---
+
 ## 3. Active Decisions & Next Steps
 
 | Item                          | Description                                                                             | Status        |
@@ -461,4 +485,5 @@ This document serves as the single source of truth for tracking every architectu
 | **L4 Monitoring Dashboard**   | Vite + React + Tailwind + Recharts dashboard updated with EMA 13/18 and ATR metrics.    | Completed     |
 | **VectorBT Backtest Engine**  | Matrix parameter optimization proved EMA 13/18 yields 269.4% return (vs 183.97%).       | Completed     |
 | **TWAP Execution Engine**     | Asynchronous thread-based order slicing with VWAP reporting verified on live testnet.   | Completed     |
+| **Freqtrade & FreqAI Agent**  | Adaptive LightGBM regressor continuously retraining on EMA 13/18, ATR & FinBERT scores. | Completed     |
 | **Next Step Options**         | Scale to Top 10 multi-asset scanning OR deploy architecture to dedicated Cloud VPS.     | Open for User |
