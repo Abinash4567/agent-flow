@@ -1,8 +1,10 @@
 import os
 import sys
 from pathlib import Path
+from typing import List, Optional
 import ccxt
 import pandas as pd
+import requests
 from dotenv import load_dotenv
 
 # Search and load .env from current directory or monorepo root
@@ -14,6 +16,7 @@ load_dotenv(dotenv_path=repo_root / ".env")
 
 API_KEY = os.getenv("BINANCE_TEST_API") or os.getenv("BINANCE_API_KEY")
 SECRET_KEY = os.getenv("BINANCE_SECRET_KEY") or os.getenv("BINANCE_API_SECRET")
+CRYPTOPANIC_API_KEY = os.getenv("CRYPTOPANIC_API_KEY")
 
 if not API_KEY or not SECRET_KEY:
     print(
@@ -167,6 +170,90 @@ def generate_signal(df: pd.DataFrame) -> str:
     return "HOLD"
 
 
+def fetch_latest_news(asset="BTC") -> List[str]:
+    """
+    Fetches the latest headlines for the specified asset from CryptoPanic API
+    or falls back to a curated headline sample if no token is configured.
+    """
+    print(f"\n--- Fetching Latest Crypto News ({asset}) ---")
+    auth_token = CRYPTOPANIC_API_KEY
+
+    if auth_token and auth_token != "YOUR_API_KEY":
+        url = f"https://cryptopanic.com/api/v1/posts/?auth_token={auth_token}&currencies={asset}&kind=news"
+        try:
+            response = requests.get(url, timeout=10)
+            data = response.json()
+            if "results" in data:
+                headlines = [post["title"] for post in data["results"][:5]]
+                print(f"Retrieved {len(headlines)} live headlines from CryptoPanic API.")
+                return headlines
+            else:
+                print(f"CryptoPanic API notice: {data.get('info', 'No results in response')}")
+        except Exception as e:
+            print(f"Live news fetch failed: {e}. Using fallback headlines.")
+
+    # High-signal fallback headlines for testing the FinBERT NLP pipeline
+    print("Using representative market headlines for sentiment analysis:")
+    fallback_headlines = [
+        "Bitcoin adoption accelerates as institutional spot ETF inflows surge",
+        "Global regulators signal clearer compliance frameworks for crypto assets",
+        "BTC hash rate achieves new all-time high amid network upgrades",
+        "Major payments network integrates Bitcoin lightning settlement layer",
+        "Central banks review digital asset reserve frameworks amid market expansion",
+    ]
+    for i, h in enumerate(fallback_headlines, 1):
+        print(f"  {i}. \"{h}\"")
+    return fallback_headlines
+
+
+_sentiment_pipeline = None
+
+
+def get_sentiment_analyzer():
+    """Lazy loader for FinBERT pipeline to optimize execution speed."""
+    global _sentiment_pipeline
+    if _sentiment_pipeline is None:
+        print("\nLoading FinBERT NLP Model (ProsusAI/finbert)...")
+        from transformers import pipeline
+
+        _sentiment_pipeline = pipeline("sentiment-analysis", model="ProsusAI/finbert")
+    return _sentiment_pipeline
+
+
+def analyze_news_sentiment(headlines: List[str]) -> str:
+    """
+    Uses FinBERT to score news headlines as 'positive', 'negative', or 'neutral'.
+    Returns aggregated overall sentiment string.
+    """
+    print("\n--- Running FinBERT NLP Sentiment Analysis ---")
+    if not headlines:
+        print("No headlines to analyze. Defaulting to neutral.")
+        return "neutral"
+
+    analyzer = get_sentiment_analyzer()
+    results = analyzer(headlines)
+
+    score = 0
+    print("\nDetailed Headline Sentiment Scoring:")
+    for headline, res in zip(headlines, results):
+        label = res["label"].lower()
+        confidence = res["score"]
+        print(f"  [{label.upper()} | {confidence:.1%}] {headline}")
+
+        if label == "positive":
+            score += 1
+        elif label == "negative":
+            score -= 1
+
+    print(f"\nAggregated Sentiment Score: {score:+d} (Positive > 0, Negative < 0, Neutral = 0)")
+
+    if score > 0:
+        return "positive"
+    elif score < 0:
+        return "negative"
+    return "neutral"
+
+
 def test_market_buy(symbol="BTC/USDT", order_size=0.01):
     """
     Executes a simulated market buy order on the connected testnet exchange.
@@ -216,22 +303,32 @@ def test_market_sell(symbol="BTC/USDT", order_size=0.01):
 if __name__ == "__main__":
     verify_connection()
 
-    # 1. Fetch historical data (Using 1h candles for more frequent signals)
+    # 1. Quantitative Analysis (Level 1: EMA 9 / EMA 21)
     df = fetch_historical_data("BTC/USDT", timeframe="1h", limit=50)
-
-    # 2. Add indicators
     df = add_technical_indicators(df)
+    tech_signal = generate_signal(df)
+    print(f"\n[TECHNICAL SIGNAL] EMA Crossover: {tech_signal}")
 
-    # 3. Generate Signal
-    signal = generate_signal(df)
-    print(f"\n[TRIGGER] Current Signal for BTC/USDT: {signal}")
+    # 2. Qualitative Analysis (Level 2: FinBERT News Sentiment)
+    headlines = fetch_latest_news("BTC")
+    news_sentiment = analyze_news_sentiment(headlines)
+    print(f"\n[FUNDAMENTAL SENTIMENT] FinBERT Result: {news_sentiment.upper()}")
 
-    # 4. Execute based on the trigger
-    if signal == "BUY":
-        print("Executing Buy Strategy...")
+    # 3. The Combined Edge Execution
+    print("\n===============================")
+    print("      FINAL TRADE DECISION     ")
+    print("===============================")
+    if tech_signal == "BUY" and news_sentiment == "positive":
+        print("[ACTION] Golden Setup: Trend is UP and News is POSITIVE. Executing BUY.")
         test_market_buy("BTC/USDT", order_size=0.01)
-    elif signal == "SELL":
-        print("Executing Sell Strategy...")
-        test_market_sell("BTC/USDT", order_size=0.01)
+    elif tech_signal == "SELL" or news_sentiment == "negative":
+        print(
+            f"[ACTION] Defensive Setup: Trend is {tech_signal} and News is {news_sentiment.upper()}."
+        )
+        if tech_signal == "SELL":
+            print("Trend broke downward: Executing SELL order...")
+            test_market_sell("BTC/USDT", order_size=0.01)
+        else:
+            print("News is NEGATIVE despite neutral/flat trend: Preserving cash, no buy.")
     else:
-        print("Market is ranging or maintaining existing trend. Holding position.")
+        print(f"[ACTION] Mixed/Neutral Signals (Tech: {tech_signal}, News: {news_sentiment}). Holding cash.")

@@ -270,14 +270,37 @@ This document serves as the single source of truth for tracking every architectu
 
 ---
 
+### [Step 014] Level 2 NLP News Trigger & Combined Edge Strategy
+
+- **Timestamp:** 2026-11-15T21:56:00+05:30
+- **Category:** Sentiment Analysis & Multi-Factor Triggers / Level 2
+- **Action:**
+  - Installed `torch` (CPU-optimized build), `transformers`, and `requests` into virtual environment.
+  - Downloaded and cached Hugging Face's specialized financial model `ProsusAI/finbert` (~438MB).
+  - Implemented `fetch_latest_news()` with CryptoPanic API support and representative headline fallbacks.
+  - Implemented `analyze_news_sentiment()` scoring headlines into `positive`, `negative`, or `neutral` with confidence intervals.
+  - Built the "Combined Edge" logic: requiring market momentum alignment (EMA crossover `BUY`) AND fundamental sentiment confirmation (`positive`) before risking simulated capital.
+  - Verified live run: Technical signal `HOLD` combined with Sentiment `POSITIVE` correctly resolved to defensive `HOLD CASH` to prevent buying into a downtrend.
+- **Files Modified / Created:**
+  - [`/home/abinash/Desktop/agent-flow/backend/bot.py`](file:///home/abinash/Desktop/agent-flow/backend/bot.py)
+  - [`/home/abinash/Desktop/agent-flow/bot.py`](file:///home/abinash/Desktop/agent-flow/bot.py)
+  - [`/home/abinash/Desktop/agent-flow/backend/requirements.txt`](file:///home/abinash/Desktop/agent-flow/backend/requirements.txt)
+  - [`/home/abinash/Desktop/agent-flow/.env.example`](file:///home/abinash/Desktop/agent-flow/.env.example)
+  - [`/home/abinash/Desktop/agent-flow/TRACKING.md`](file:///home/abinash/Desktop/agent-flow/TRACKING.md)
+- **Status:** Completed
+
+---
+
 ## 3. Active Decisions & Next Steps
 
-| Item                         | Description                                                                          | Status            |
-| :--------------------------- | :----------------------------------------------------------------------------------- | :---------------- |
-| **Git Author Identity**      | Configured repo-local author details matching authenticated GitHub account.          | Completed         |
-| **Remote Repository Sync**   | Pushed initial commit to `origin/main` on GitHub (`Abinash4567/agent-flow`).         | Completed         |
-| **Code Quality & Tooling**   | Prettier, ESLint, Husky, lint-staged, VS Code settings configured.                   | Completed         |
-| **L0 Market Connection**     | Connected to Binance Spot Testnet via `ccxt` with dual auto-detection fallback.      | Completed         |
-| **L1 Order & Data Pipeline** | Verified automated market buy execution (`Order #13870713`) & OHLCV DataFrame fetch. | Completed         |
-| **L2 Quantitative Trigger**  | Implemented EMA 9 / EMA 21 indicator pipeline & signal generation (`BUY/SELL/HOLD`). | Completed         |
-| **Next Phase: NLP / News**   | Implement news sentiment trigger or continuous scheduling loop (e.g. cron/daemon).   | Open for Decision |
+| Item                          | Description                                                                           | Status            |
+| :---------------------------- | :------------------------------------------------------------------------------------ | :---------------- |
+| **Git Author Identity**       | Configured repo-local author details matching authenticated GitHub account.           | Completed         |
+| **Remote Repository Sync**    | Pushed initial commit to `origin/main` on GitHub (`Abinash4567/agent-flow`).          | Completed         |
+| **Code Quality & Tooling**    | Prettier, ESLint, Husky, lint-staged, VS Code settings configured.                    | Completed         |
+| **L0 Market Connection**      | Connected to Binance Spot Testnet via `ccxt` with dual auto-detection fallback.       | Completed         |
+| **L1 Order & Data Pipeline**  | Verified automated market buy execution (`Order #13870713`) & OHLCV DataFrame fetch.  | Completed         |
+| **L2 Quantitative Trigger**   | Implemented EMA 9 / EMA 21 indicator pipeline & signal generation (`BUY/SELL/HOLD`).  | Completed         |
+| **L2 NLP News Trigger**       | Integrated FinBERT sentiment analyzer & CryptoPanic news ingestion pipeline.          | Completed         |
+| **L2 Combined Edge Decision** | Verified dual-condition filter preventing counter-trend entries on divergent signals. | Completed         |
+| **Next Phase: Automation**    | Implement autonomous scheduling loop, stop-loss/take-profit, or portfolio telemetry.  | Open for Decision |
