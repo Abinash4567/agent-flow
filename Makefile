@@ -1,11 +1,12 @@
-.PHONY: help setup dev dev-backend dev-frontend build test lint format bot daemon pm2-start pm2-stop pm2-restart pm2-status pm2-logs clean
+.PHONY: help setup dev dev-backend dev-frontend build test lint format bot daemon pm2-start pm2-stop pm2-restart pm2-status pm2-logs api clean
 
 help:
 	@echo "Available commands:"
 	@echo "  make setup          - Initial environment setup"
-	@echo "  make dev            - Run backend and frontend concurrently"
-	@echo "  make dev-backend    - Run backend service"
-	@echo "  make dev-frontend   - Run frontend service"
+	@echo "  make dev            - Run FastAPI backend and React frontend concurrently"
+	@echo "  make dev-backend    - Run FastAPI backend bridge"
+	@echo "  make dev-frontend   - Run Vite React frontend dashboard"
+	@echo "  make api            - Run FastAPI backend server directly"
 	@echo "  make bot            - Run a single evaluation cycle of the trading bot"
 	@echo "  make daemon         - Run continuous trading bot daemon in foreground"
 	@echo "  make pm2-start      - Launch bot daemon as a background PM2 service"
@@ -17,6 +18,9 @@ help:
 	@echo "  make lint           - Run linters across root and services"
 	@echo "  make format         - Format codebase with Prettier"
 	@echo "  make clean          - Clean build artifacts and temporary files"
+
+api:
+	@.venv/bin/uvicorn backend.api:app --host 0.0.0.0 --port 8000 --reload
 
 bot:
 	@.venv/bin/python3 bot.py
@@ -42,11 +46,12 @@ pm2-logs:
 setup:
 	@echo "Running setup..."
 	@if [ -f backend/Makefile ]; then $(MAKE) -C backend setup; fi
-	@if [ -f frontend/Makefile ]; then $(MAKE) -C frontend setup; fi
+	@if [ -f frontend/package.json ]; then cd frontend && npm install; fi
 
 dev-backend:
-	@echo "Starting backend..."
-	@if [ -f backend/Makefile ]; then $(MAKE) -C backend dev; \
+	@echo "Starting backend API bridge on port 8000..."
+	@if [ -f backend/api.py ]; then .venv/bin/uvicorn backend.api:app --host 0.0.0.0 --port 8000 --reload; \
+	elif [ -f backend/Makefile ]; then $(MAKE) -C backend dev; \
 	elif [ -f backend/package.json ]; then cd backend && npm run dev; \
 	elif [ -f backend/main.py ] || [ -f backend/app.py ]; then cd backend && (python3 -m uvicorn main:app --reload 2>/dev/null || python3 main.py); \
 	else echo "No backend entry point configured yet in ./backend"; fi

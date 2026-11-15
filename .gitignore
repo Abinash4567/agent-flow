@@ -50,6 +50,7 @@ out/
 .cache/
 .parcel-cache/
 .docusaurus/
+*.tsbuildinfo
 
 # Python
 __pycache__/

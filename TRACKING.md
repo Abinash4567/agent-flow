@@ -331,18 +331,56 @@ This document serves as the single source of truth for tracking every architectu
 
 ---
 
+### [Step 017] Level 4 Frontend Monitoring Dashboard & FastAPI Real-time Bridge
+
+- **Timestamp:** 2026-11-15T22:28:00+05:30
+- **Category:** Monitoring Dashboard & API Bridge / Level 4
+- **Action:**
+  - Built FastAPI bridge in [`backend/api.py`](file:///home/abinash/Desktop/agent-flow/backend/api.py) exposing:
+    - `/api/status`: Real-time bot daemon state, Binance wallet balances, active BTC/USDT price, and current position PnL.
+    - `/api/candles`: OHLCV candlestick data with calculated EMA 9 and EMA 21 values for charting.
+    - `/api/news`: Latest market news headlines and their FinBERT sentiment scores.
+    - Added CORS middleware (`CORSMiddleware`) for seamless communication with the Vite frontend.
+  - Built real-time monitoring web dashboard in [`frontend/`](file:///home/abinash/Desktop/agent-flow/frontend) with Vite, React 18, TypeScript, Tailwind CSS, Recharts, and Lucide React:
+    - Live bot operational status (Daemon active / idle, execution loop indicator).
+    - Real-time wallet balances (USDT & BTC) and portfolio value calculation.
+    - Open position tracker showing entry price, current price, and unrealized PnL with dynamic color tags.
+    - Interactive price & EMA chart visualizing live 1h candlestick trends alongside EMA 9 and EMA 21 lines.
+    - Real-time news sentiment feed displaying breaking headlines, individual sentiment tags, and aggregate market posture.
+    - Quantitative & combined edge summary panel showing risk parameters (Stop-Loss: -2.0%, Take-Profit: +6.0%).
+  - Configured monorepo orchestration in [`Makefile`](file:///home/abinash/Desktop/agent-flow/Makefile) (`make dev`, `make dev-backend`, `make dev-frontend`, `make api`).
+  - Verified full frontend build with TypeScript typechecking (`tsc -b && vite build`) passing cleanly.
+- **Files Modified / Created:**
+  - [`/home/abinash/Desktop/agent-flow/backend/api.py`](file:///home/abinash/Desktop/agent-flow/backend/api.py)
+  - [`/home/abinash/Desktop/agent-flow/backend/requirements.txt`](file:///home/abinash/Desktop/agent-flow/backend/requirements.txt)
+  - [`/home/abinash/Desktop/agent-flow/frontend/package.json`](file:///home/abinash/Desktop/agent-flow/frontend/package.json)
+  - [`/home/abinash/Desktop/agent-flow/frontend/vite.config.ts`](file:///home/abinash/Desktop/agent-flow/frontend/vite.config.ts)
+  - [`/home/abinash/Desktop/agent-flow/frontend/tsconfig.json`](file:///home/abinash/Desktop/agent-flow/frontend/tsconfig.json)
+  - [`/home/abinash/Desktop/agent-flow/frontend/tailwind.config.js`](file:///home/abinash/Desktop/agent-flow/frontend/tailwind.config.js)
+  - [`/home/abinash/Desktop/agent-flow/frontend/postcss.config.js`](file:///home/abinash/Desktop/agent-flow/frontend/postcss.config.js)
+  - [`/home/abinash/Desktop/agent-flow/frontend/index.html`](file:///home/abinash/Desktop/agent-flow/frontend/index.html)
+  - [`/home/abinash/Desktop/agent-flow/frontend/src/App.tsx`](file:///home/abinash/Desktop/agent-flow/frontend/src/App.tsx)
+  - [`/home/abinash/Desktop/agent-flow/frontend/src/main.tsx`](file:///home/abinash/Desktop/agent-flow/frontend/src/main.tsx)
+  - [`/home/abinash/Desktop/agent-flow/frontend/src/index.css`](file:///home/abinash/Desktop/agent-flow/frontend/src/index.css)
+  - [`/home/abinash/Desktop/agent-flow/Makefile`](file:///home/abinash/Desktop/agent-flow/Makefile)
+  - [`/home/abinash/Desktop/agent-flow/TRACKING.md`](file:///home/abinash/Desktop/agent-flow/TRACKING.md)
+- **Status:** Completed
+
+---
+
 ## 3. Active Decisions & Next Steps
 
-| Item                          | Description                                                                            | Status            |
-| :---------------------------- | :------------------------------------------------------------------------------------- | :---------------- |
-| **Git Author Identity**       | Configured repo-local author details matching authenticated GitHub account.            | Completed         |
-| **Remote Repository Sync**    | Pushed initial commit to `origin/main` on GitHub (`Abinash4567/agent-flow`).           | Completed         |
-| **Code Quality & Tooling**    | Prettier, ESLint, Husky, lint-staged, VS Code settings configured.                     | Completed         |
-| **L0 Market Connection**      | Connected to Binance Spot Testnet via `ccxt` with dual auto-detection fallback.        | Completed         |
-| **L1 Order & Data Pipeline**  | Verified automated market buy execution (`Order #13870713`) & OHLCV DataFrame fetch.   | Completed         |
-| **L2 Quantitative Trigger**   | Implemented EMA 9 / EMA 21 indicator pipeline & signal generation (`BUY/SELL/HOLD`).   | Completed         |
-| **L2 NLP News Trigger**       | Integrated FinBERT sentiment analyzer & multi-source live crypto news feeds.           | Completed         |
-| **L2 Combined Edge Decision** | Verified dual-condition filter preventing counter-trend entries on divergent signals.  | Completed         |
-| **L3 Risk Management**        | Implemented Stop-Loss (-2%) & Take-Profit (+6%) exit engine with simulated executions. | Completed         |
-| **L3 Continuous Daemon**      | Built persistent daemon loop and PM2 production process configuration.                 | Completed         |
-| **Next Phase: Monitoring**    | Launch PM2 daemon in background, configure live alerts, or build frontend dashboard.   | Open for Decision |
+| Item                          | Description                                                                            | Status           |
+| :---------------------------- | :------------------------------------------------------------------------------------- | :--------------- |
+| **Git Author Identity**       | Configured repo-local author details matching authenticated GitHub account.            | Completed        |
+| **Remote Repository Sync**    | Pushed initial commit to `origin/main` on GitHub (`Abinash4567/agent-flow`).           | Completed        |
+| **Code Quality & Tooling**    | Prettier, ESLint, Husky, lint-staged, VS Code settings configured.                     | Completed        |
+| **L0 Market Connection**      | Connected to Binance Spot Testnet via `ccxt` with dual auto-detection fallback.        | Completed        |
+| **L1 Order & Data Pipeline**  | Verified automated market buy execution (`Order #13870713`) & OHLCV DataFrame fetch.   | Completed        |
+| **L2 Quantitative Trigger**   | Implemented EMA 9 / EMA 21 indicator pipeline & signal generation (`BUY/SELL/HOLD`).   | Completed        |
+| **L2 NLP News Trigger**       | Integrated FinBERT sentiment analyzer & multi-source live crypto news feeds.           | Completed        |
+| **L2 Combined Edge Decision** | Verified dual-condition filter preventing counter-trend entries on divergent signals.  | Completed        |
+| **L3 Risk Management**        | Implemented Stop-Loss (-2%) & Take-Profit (+6%) exit engine with simulated executions. | Completed        |
+| **L3 Continuous Daemon**      | Built persistent daemon loop and PM2 production process configuration.                 | Completed        |
+| **L4 Monitoring Dashboard**   | Vite + React + Tailwind + Recharts dashboard with FastAPI real-time bridge.            | Completed        |
+| **Production Operation**      | Deploy live with PM2 daemon + dashboard web interface.                                 | Ready for Launch |
