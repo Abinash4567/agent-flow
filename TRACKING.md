@@ -419,6 +419,31 @@ This document serves as the single source of truth for tracking every architectu
 
 ---
 
+### [Step 020] Asynchronous TWAP Execution Engine & Smart Order Slicing
+
+- **Timestamp:** 2026-11-15T23:07:00+05:30
+- **Category:** Smart Routing & Liquidity Execution / TWAP Engine
+- **Action:**
+  - Built institutional-grade TWAP (Time-Weighted Average Price) execution engine in [`backend/execution.py`](file:///home/abinash/Desktop/agent-flow/backend/execution.py):
+    - Slices parent orders into discrete, low-impact sub-orders (chunks) across a configurable time window (`chunks=5`, `duration_minutes=5.0`).
+    - Runs asynchronously in dedicated background daemon threads (`threading.Thread(daemon=True)`) to eliminate blocking of the main daemon evaluation loop or risk monitor.
+    - Calculates Volume-Weighted Average Price (VWAP) across all filled slices and logs execution telemetry.
+  - Integrated TWAP into [`backend/bot.py`](file:///home/abinash/Desktop/agent-flow/backend/bot.py):
+    - Replaced raw lump-sum market orders with asynchronous TWAP execution for both entries (`Golden Setup BUY`) and exits (`ATR Trailing Stop SELL`).
+  - Updated [`backend/api.py`](file:///home/abinash/Desktop/agent-flow/backend/api.py) to broadcast TWAP configuration to the frontend monitoring dashboard.
+  - Verified live test execution on Binance Spot Testnet:
+    - TWAP BUY test filled 2 slices (`Orders #14297536` and `#14297542`) at VWAP $64,594.33.
+    - TWAP SELL test filled 2 slices (`Orders #14297604` and `#14297611`) at VWAP $64,570.00.
+    - Verified full evaluation cycle with `make bot`.
+- **Files Modified / Created:**
+  - [`/home/abinash/Desktop/agent-flow/backend/execution.py`](file:///home/abinash/Desktop/agent-flow/backend/execution.py)
+  - [`/home/abinash/Desktop/agent-flow/backend/bot.py`](file:///home/abinash/Desktop/agent-flow/backend/bot.py)
+  - [`/home/abinash/Desktop/agent-flow/backend/api.py`](file:///home/abinash/Desktop/agent-flow/backend/api.py)
+  - [`/home/abinash/Desktop/agent-flow/TRACKING.md`](file:///home/abinash/Desktop/agent-flow/TRACKING.md)
+- **Status:** Completed
+
+---
+
 ## 3. Active Decisions & Next Steps
 
 | Item                          | Description                                                                             | Status        |
@@ -435,4 +460,5 @@ This document serves as the single source of truth for tracking every architectu
 | **L3 Continuous Daemon**      | Built persistent daemon loop and PM2 production process configuration.                  | Completed     |
 | **L4 Monitoring Dashboard**   | Vite + React + Tailwind + Recharts dashboard updated with EMA 13/18 and ATR metrics.    | Completed     |
 | **VectorBT Backtest Engine**  | Matrix parameter optimization proved EMA 13/18 yields 269.4% return (vs 183.97%).       | Completed     |
-| **Next Step: Smart Routing**  | Implement TWAP order-slicing execution engine (`backend/execution.py`).                 | Open for User |
+| **TWAP Execution Engine**     | Asynchronous thread-based order slicing with VWAP reporting verified on live testnet.   | Completed     |
+| **Next Step Options**         | Scale to Top 10 multi-asset scanning OR deploy architecture to dedicated Cloud VPS.     | Open for User |

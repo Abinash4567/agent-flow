@@ -40,6 +40,15 @@ ATR_MULTIPLIER = float(os.getenv("ATR_MULTIPLIER", "2.0"))  # Dynamic Trailing S
 TRADE_SIZE_BTC = float(os.getenv("TRADE_SIZE_BTC", "0.01"))  # Trade size: 0.01 BTC
 POLL_INTERVAL_SECONDS = int(os.getenv("POLL_INTERVAL_SECONDS", "900"))  # Default: 15 minutes (900s)
 
+# TWAP Execution Parameters
+TWAP_CHUNKS = int(os.getenv("TWAP_CHUNKS", "5"))
+TWAP_DURATION_MINUTES = float(os.getenv("TWAP_DURATION_MINUTES", "5.0"))
+
+try:
+    from backend.execution import execute_twap_order
+except ImportError:
+    from execution import execute_twap_order
+
 # Upgraded State Tracking for Trailing Stops
 in_position: bool = False
 entry_price: float = 0.0
@@ -447,7 +456,9 @@ def check_exit_conditions(current_price: float, latest_atr: float, symbol: str =
     if current_price <= trailing_stop_price:
         print(f"\n[EXIT ALERT] 🛑 ATR Trailing Stop triggered at ${current_price:,.2f}!")
         print(f"             Highest Price Reached: ${highest_price_since_entry:,.2f} | ATR: ${current_atr:,.2f} | Stop Floor: ${trailing_stop_price:,.2f}")
-        test_market_sell(symbol, order_size=position_size or TRADE_SIZE_BTC)
+        exit_volume = position_size or TRADE_SIZE_BTC
+        print(f"[SMART ROUTING] Dispatching asynchronous TWAP SELL order ({exit_volume} {symbol} over {TWAP_DURATION_MINUTES} mins, {TWAP_CHUNKS} slices)...")
+        execute_twap_order(exchange, symbol, "sell", exit_volume, chunks=TWAP_CHUNKS, duration_minutes=TWAP_DURATION_MINUTES)
 
         # Reset state
         in_position = False
@@ -494,8 +505,9 @@ def run_single_cycle(symbol: str = "BTC/USDT", timeframe: str = "1h") -> Dict[st
         print("      FINAL TRADE DECISION     ")
         print("===============================")
         if tech_signal == "BUY" and news_sentiment == "positive":
-            print(f"[ACTION] Golden Setup: Trend is UP (EMA 13 > 18) and News is POSITIVE. Executing BUY at ${current_price:,.2f}")
-            test_market_buy(symbol, order_size=TRADE_SIZE_BTC)
+            print(f"[ACTION] Golden Setup: Trend is UP (EMA 13 > 18) and News is POSITIVE.")
+            print(f"[SMART ROUTING] Dispatching asynchronous TWAP BUY order ({TRADE_SIZE_BTC} {symbol} over {TWAP_DURATION_MINUTES} mins, {TWAP_CHUNKS} slices)...")
+            execute_twap_order(exchange, symbol, "buy", TRADE_SIZE_BTC, chunks=TWAP_CHUNKS, duration_minutes=TWAP_DURATION_MINUTES)
             in_position = True
             entry_price = current_price
             highest_price_since_entry = current_price
@@ -523,6 +535,7 @@ def run_daemon_loop(symbol: str = "BTC/USDT", timeframe: str = "1h", max_iterati
     verify_connection()
     print(f"\n--- Starting Autonomous Continuous Trading Daemon ({symbol}) ---")
     print(f"Risk Rules: Dynamic ATR Trailing Stop: {ATR_MULTIPLIER}x ATR | Position Size: {TRADE_SIZE_BTC} BTC")
+    print(f"Execution:  TWAP Smart Routing ({TWAP_CHUNKS} slices over {TWAP_DURATION_MINUTES} mins)")
     print(f"Poll Interval: {POLL_INTERVAL_SECONDS} seconds | State Persistence: {STATE_FILE.name}")
 
     iterations = 0

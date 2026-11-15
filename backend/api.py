@@ -102,6 +102,9 @@ def get_bot_status() -> Dict[str, Any]:
             "strategy": "ATR Trailing Stop",
             "atr_multiplier": ATR_MULTIPLIER,
             "trade_size_btc": TRADE_SIZE_BTC,
+            "execution_engine": "TWAP Asynchronous Slicing",
+            "twap_chunks": 5,
+            "twap_duration_minutes": 5.0,
         },
     }
 
