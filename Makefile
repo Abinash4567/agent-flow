@@ -1,4 +1,4 @@
-.PHONY: help setup dev dev-backend dev-frontend build test lint format bot daemon pm2-start pm2-stop pm2-restart pm2-status pm2-logs api clean
+.PHONY: help setup dev dev-backend dev-frontend build test lint format bot daemon backtest pm2-start pm2-stop pm2-restart pm2-status pm2-logs api clean
 
 help:
 	@echo "Available commands:"
@@ -9,6 +9,7 @@ help:
 	@echo "  make api            - Run FastAPI backend server directly"
 	@echo "  make bot            - Run a single evaluation cycle of the trading bot"
 	@echo "  make daemon         - Run continuous trading bot daemon in foreground"
+	@echo "  make backtest       - Run VectorBT historical backtest and parameter scan"
 	@echo "  make pm2-start      - Launch bot daemon as a background PM2 service"
 	@echo "  make pm2-stop       - Stop PM2 bot daemon"
 	@echo "  make pm2-status     - Check PM2 bot daemon status"
@@ -27,6 +28,9 @@ bot:
 
 daemon:
 	@DAEMON_MODE=true .venv/bin/python3 bot.py
+
+backtest:
+	@.venv/bin/python3 backtest.py
 
 pm2-start:
 	@pm2 start ecosystem.config.cjs

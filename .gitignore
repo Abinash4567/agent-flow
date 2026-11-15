@@ -113,3 +113,5 @@ temp/
 *.tmp
 *.state.json
 .state.json
+*.html
+!frontend/index.html
