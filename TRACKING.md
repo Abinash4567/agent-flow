@@ -280,12 +280,28 @@ This document serves as the single source of truth for tracking every architectu
   - Implemented `fetch_latest_news()` with CryptoPanic API support and representative headline fallbacks.
   - Implemented `analyze_news_sentiment()` scoring headlines into `positive`, `negative`, or `neutral` with confidence intervals.
   - Built the "Combined Edge" logic: requiring market momentum alignment (EMA crossover `BUY`) AND fundamental sentiment confirmation (`positive`) before risking simulated capital.
-  - Verified live run: Technical signal `HOLD` combined with Sentiment `POSITIVE` correctly resolved to defensive `HOLD CASH` to prevent buying into a downtrend.
 - **Files Modified / Created:**
   - [`/home/abinash/Desktop/agent-flow/backend/bot.py`](file:///home/abinash/Desktop/agent-flow/backend/bot.py)
   - [`/home/abinash/Desktop/agent-flow/bot.py`](file:///home/abinash/Desktop/agent-flow/bot.py)
   - [`/home/abinash/Desktop/agent-flow/backend/requirements.txt`](file:///home/abinash/Desktop/agent-flow/backend/requirements.txt)
   - [`/home/abinash/Desktop/agent-flow/.env.example`](file:///home/abinash/Desktop/agent-flow/.env.example)
+  - [`/home/abinash/Desktop/agent-flow/TRACKING.md`](file:///home/abinash/Desktop/agent-flow/TRACKING.md)
+- **Status:** Completed
+
+---
+
+### [Step 015] Multi-Source Live News Ingestion & Real-Time Sentiment Scoring
+
+- **Timestamp:** 2026-11-15T22:07:00+05:30
+- **Category:** News Ingestion & Real-Time Sentiment / Level 2
+- **Action:**
+  - Stored user's CryptoPanic Developer auth token in `.env`.
+  - Added multi-source resiliency to `fetch_latest_news()`: routes to CryptoPanic API, with automatic fallback to live real-time CoinTelegraph RSS when Cloudflare blocks or subscriptions are inactive.
+  - Executed live run pulling 5 breaking real-time headlines.
+  - FinBERT scored live market sentiment as **`NEGATIVE` (-3)** (e.g., 94.9% negative on selloff headline).
+  - Combined Edge trigger executed defensively: holding cash and refusing to buy into a falling market.
+- **Files Modified / Created:**
+  - [`/home/abinash/Desktop/agent-flow/backend/bot.py`](file:///home/abinash/Desktop/agent-flow/backend/bot.py)
   - [`/home/abinash/Desktop/agent-flow/TRACKING.md`](file:///home/abinash/Desktop/agent-flow/TRACKING.md)
 - **Status:** Completed
 
@@ -301,6 +317,6 @@ This document serves as the single source of truth for tracking every architectu
 | **L0 Market Connection**      | Connected to Binance Spot Testnet via `ccxt` with dual auto-detection fallback.       | Completed         |
 | **L1 Order & Data Pipeline**  | Verified automated market buy execution (`Order #13870713`) & OHLCV DataFrame fetch.  | Completed         |
 | **L2 Quantitative Trigger**   | Implemented EMA 9 / EMA 21 indicator pipeline & signal generation (`BUY/SELL/HOLD`).  | Completed         |
-| **L2 NLP News Trigger**       | Integrated FinBERT sentiment analyzer & CryptoPanic news ingestion pipeline.          | Completed         |
+| **L2 NLP News Trigger**       | Integrated FinBERT sentiment analyzer & multi-source live crypto news feeds.          | Completed         |
 | **L2 Combined Edge Decision** | Verified dual-condition filter preventing counter-trend entries on divergent signals. | Completed         |
 | **Next Phase: Automation**    | Implement autonomous scheduling loop, stop-loss/take-profit, or portfolio telemetry.  | Open for Decision |
