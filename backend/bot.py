@@ -1,8 +1,10 @@
+import json
 import os
 import sys
+import time
 import xml.etree.ElementTree as ET
 from pathlib import Path
-from typing import List, Optional
+from typing import Any, Dict, List, Optional
 import ccxt
 import pandas as pd
 import requests
@@ -26,6 +28,62 @@ if not API_KEY or not SECRET_KEY:
         file=sys.stderr,
     )
     sys.exit(1)
+
+
+# ==========================================
+# LEVEL 3: STATE & RISK PARAMETERS
+# ==========================================
+STATE_FILE = repo_root / ".state.json"
+
+# Risk Management Parameters
+STOP_LOSS_PCT = float(os.getenv("STOP_LOSS_PCT", "0.02"))  # 2% Stop-Loss below entry
+TAKE_PROFIT_PCT = float(os.getenv("TAKE_PROFIT_PCT", "0.06"))  # 6% Take-Profit above entry
+TRADE_SIZE_BTC = float(os.getenv("TRADE_SIZE_BTC", "0.01"))  # Trade size: 0.01 BTC
+POLL_INTERVAL_SECONDS = int(os.getenv("POLL_INTERVAL_SECONDS", "900"))  # Default: 15 minutes (900s)
+
+# Position Memory
+in_position: bool = False
+entry_price: float = 0.0
+position_size: float = 0.0
+
+
+def load_position_state():
+    """Restores open trade positions across daemon restarts."""
+    global in_position, entry_price, position_size
+    if STATE_FILE.exists():
+        try:
+            with open(STATE_FILE, "r", encoding="utf-8") as f:
+                data = json.load(f)
+                in_position = data.get("in_position", False)
+                entry_price = float(data.get("entry_price", 0.0))
+                position_size = float(data.get("position_size", 0.0))
+                if in_position:
+                    print(
+                        f"[STATE RESTORED] Open Position: {position_size} BTC @ ${entry_price:,.2f}"
+                    )
+        except Exception as e:
+            print(f"[STATE NOTICE] Could not read state file: {e}")
+
+
+def save_position_state():
+    """Persists open trade positions to disk."""
+    try:
+        with open(STATE_FILE, "w", encoding="utf-8") as f:
+            json.dump(
+                {
+                    "in_position": in_position,
+                    "entry_price": entry_price,
+                    "position_size": position_size,
+                    "updated_at": pd.Timestamp.now().isoformat(),
+                },
+                f,
+                indent=2,
+            )
+    except Exception as e:
+        print(f"[STATE WARNING] Could not persist state: {e}")
+
+
+load_position_state()
 
 
 def get_authenticated_exchange(api_key: str, secret_key: str):
@@ -173,11 +231,8 @@ def generate_signal(df: pd.DataFrame) -> str:
 
 def fetch_latest_news(asset="BTC") -> List[str]:
     """
-    Fetches the latest headlines for the specified asset.
-    Attempts:
-    1. CryptoPanic API (using configured auth token)
-    2. Live decentralized RSS feeds (CoinTelegraph, CoinDesk)
-    3. Representative curated headlines fallback
+    Fetches the latest headlines for the specified asset from CryptoPanic API,
+    falling back automatically to live CoinTelegraph RSS or curated headlines.
     """
     print(f"\n--- Fetching Latest Crypto News ({asset}) ---")
     auth_token = CRYPTOPANIC_API_KEY
@@ -195,9 +250,9 @@ def fetch_latest_news(asset="BTC") -> List[str]:
                     print(f"Retrieved {len(headlines)} live headlines from CryptoPanic API.")
                     return headlines
             elif response.status_code == 403:
-                print("CryptoPanic API returned 403 (Cloudflare WAF / Inactive Plan). Auto-switching to live crypto RSS feed...")
+                print("CryptoPanic returned 403. Auto-switching to real-time CoinTelegraph feed...")
         except Exception as e:
-            print(f"CryptoPanic API request notice: {e}")
+            print(f"CryptoPanic API notice: {e}")
 
     # 2. Live RSS Feed Fallback (CoinTelegraph)
     try:
@@ -207,7 +262,6 @@ def fetch_latest_news(asset="BTC") -> List[str]:
         if resp.status_code == 200:
             root = ET.fromstring(resp.content)
             items = root.findall(".//item")
-            # Filter headlines mentioning asset or general market
             asset_headlines = []
             for item in items:
                 title = item.find("title").text if item.find("title") is not None else ""
@@ -222,7 +276,7 @@ def fetch_latest_news(asset="BTC") -> List[str]:
                     print(f"  {i}. \"{h}\"")
                 return asset_headlines
     except Exception as e:
-        print(f"Live RSS fetch failed: {e}")
+        print(f"Live RSS fetch notice: {e}")
 
     # 3. High-signal fallback headlines
     print("Using representative market headlines for sentiment analysis:")
@@ -332,35 +386,134 @@ def test_market_sell(symbol="BTC/USDT", order_size=0.01):
         print(f"[ERROR] Unexpected sell error: {type(e).__name__}: {e}")
 
 
-if __name__ == "__main__":
-    verify_connection()
+# ==========================================
+# LEVEL 3: RISK MANAGEMENT & EXIT ENGINE
+# ==========================================
+def check_exit_conditions(current_price: float, symbol: str = "BTC/USDT") -> bool:
+    """
+    Evaluates whether an active position has breached Stop-Loss or reached Take-Profit.
+    Closes the position if triggered and updates persistent state.
+    """
+    global in_position, entry_price, position_size
 
-    # 1. Quantitative Analysis (Level 1: EMA 9 / EMA 21)
-    df = fetch_historical_data("BTC/USDT", timeframe="1h", limit=50)
-    df = add_technical_indicators(df)
-    tech_signal = generate_signal(df)
-    print(f"\n[TECHNICAL SIGNAL] EMA Crossover: {tech_signal}")
+    if not in_position or entry_price <= 0:
+        return False
 
-    # 2. Qualitative Analysis (Level 2: FinBERT News Sentiment)
-    headlines = fetch_latest_news("BTC")
-    news_sentiment = analyze_news_sentiment(headlines)
-    print(f"\n[FUNDAMENTAL SENTIMENT] FinBERT Result: {news_sentiment.upper()}")
+    price_change_pct = (current_price - entry_price) / entry_price
+    print(
+        f"\n[POSITION MONITOR] Open: {position_size} BTC | Entry: ${entry_price:,.2f} | Current: ${current_price:,.2f} | PnL: {price_change_pct:+.2%}"
+    )
 
-    # 3. The Combined Edge Execution
-    print("\n===============================")
-    print("      FINAL TRADE DECISION     ")
-    print("===============================")
-    if tech_signal == "BUY" and news_sentiment == "positive":
-        print("[ACTION] Golden Setup: Trend is UP and News is POSITIVE. Executing BUY.")
-        test_market_buy("BTC/USDT", order_size=0.01)
-    elif tech_signal == "SELL" or news_sentiment == "negative":
+    # Condition A: Stop-Loss Triggered
+    if current_price <= entry_price * (1 - STOP_LOSS_PCT):
         print(
-            f"[ACTION] Defensive Setup: Trend is {tech_signal} and News is {news_sentiment.upper()}."
+            f"[EXIT ALERT] Stop-Loss breached at ${current_price:,.2f} ({price_change_pct:.2%}). Selling position to cap risk."
         )
-        if tech_signal == "SELL":
-            print("Trend broke downward: Executing SELL order...")
-            test_market_sell("BTC/USDT", order_size=0.01)
+        test_market_sell(symbol, order_size=position_size or TRADE_SIZE_BTC)
+        in_position = False
+        entry_price = 0.0
+        position_size = 0.0
+        save_position_state()
+        return True
+
+    # Condition B: Take-Profit Triggered
+    elif current_price >= entry_price * (1 + TAKE_PROFIT_PCT):
+        print(
+            f"[EXIT ALERT] Take-Profit reached at ${current_price:,.2f} ({price_change_pct:+.2%}). Selling position to lock gains."
+        )
+        test_market_sell(symbol, order_size=position_size or TRADE_SIZE_BTC)
+        in_position = False
+        entry_price = 0.0
+        position_size = 0.0
+        save_position_state()
+        return True
+
+    print(f"[RISK GUARD] Position within safety tolerances (Stop: -{STOP_LOSS_PCT:.1%}, Target: +{TAKE_PROFIT_PCT:.1%}). Maintaining position.")
+    return False
+
+
+def run_single_cycle(symbol: str = "BTC/USDT", timeframe: str = "1h") -> Dict[str, Any]:
+    """Runs a complete evaluation cycle (risk check, indicators, news, decision)."""
+    global in_position, entry_price, position_size
+
+    # 1. Fetch current market data
+    df = fetch_historical_data(symbol, timeframe=timeframe, limit=50)
+    current_price = float(df.iloc[-1]["close"])
+
+    # 2. Manage existing open positions first (Risk Management)
+    if in_position:
+        exited = check_exit_conditions(current_price, symbol=symbol)
+        if exited:
+            return {"action": "EXIT", "price": current_price}
+
+    # 3. Look for new entries if cash is available
+    if not in_position:
+        df = add_technical_indicators(df)
+        tech_signal = generate_signal(df)
+        print(f"\n[TECHNICAL SIGNAL] EMA Crossover: {tech_signal}")
+
+        headlines = fetch_latest_news("BTC")
+        news_sentiment = analyze_news_sentiment(headlines)
+        print(f"\n[FUNDAMENTAL SENTIMENT] FinBERT Result: {news_sentiment.upper()}")
+
+        print("\n===============================")
+        print("      FINAL TRADE DECISION     ")
+        print("===============================")
+        if tech_signal == "BUY" and news_sentiment == "positive":
+            print(f"[ACTION] Golden Setup: Trend is UP and News is POSITIVE. Executing BUY at ${current_price:,.2f}")
+            test_market_buy(symbol, order_size=TRADE_SIZE_BTC)
+            in_position = True
+            entry_price = current_price
+            position_size = TRADE_SIZE_BTC
+            save_position_state()
+            return {"action": "BUY", "price": current_price}
+        elif tech_signal == "SELL" or news_sentiment == "negative":
+            print(
+                f"[ACTION] Defensive Setup: Trend is {tech_signal} and News is {news_sentiment.upper()}."
+            )
+            return {"action": "DEFENSIVE_HOLD", "price": current_price}
         else:
-            print("News is NEGATIVE despite neutral/flat trend: Preserving cash, no buy.")
-    else:
-        print(f"[ACTION] Mixed/Neutral Signals (Tech: {tech_signal}, News: {news_sentiment}). Holding cash.")
+            print(f"[ACTION] Mixed/Neutral Signals (Tech: {tech_signal}, News: {news_sentiment}). Holding cash.")
+            return {"action": "HOLD_CASH", "price": current_price}
+
+    return {"action": "HOLD_POSITION", "price": current_price}
+
+
+def run_daemon_loop(symbol: str = "BTC/USDT", timeframe: str = "1h", max_iterations: Optional[int] = None):
+    """
+    Autonomous continuous daemon loop.
+    Executes cycle, monitors risk, sleeps for POLL_INTERVAL_SECONDS, and repeats.
+    """
+    verify_connection()
+    print(f"\n--- Starting Autonomous Continuous Trading Daemon ({symbol}) ---")
+    print(f"Risk Rules: Stop-Loss: -{STOP_LOSS_PCT:.1%} | Take-Profit: +{TAKE_PROFIT_PCT:.1%} | Position Size: {TRADE_SIZE_BTC} BTC")
+    print(f"Poll Interval: {POLL_INTERVAL_SECONDS} seconds | State Persistence: {STATE_FILE.name}")
+
+    iterations = 0
+    while True:
+        try:
+            iterations += 1
+            print(f"\n>>> [CYCLE {iterations} START: {pd.Timestamp.now()}] <<<")
+            run_single_cycle(symbol=symbol, timeframe=timeframe)
+            print(f">>> [CYCLE {iterations} END: {pd.Timestamp.now()}] Sleeping for {POLL_INTERVAL_SECONDS}s...")
+
+            if max_iterations and iterations >= max_iterations:
+                print(f"Completed requested {max_iterations} iteration(s). Daemon exiting cleanly.")
+                break
+
+            time.sleep(POLL_INTERVAL_SECONDS)
+
+        except KeyboardInterrupt:
+            print("\n[DAEMON STOPPED] User interruption received. Exiting gracefully...")
+            break
+        except Exception as e:
+            print(f"\n[CRITICAL ERROR] Daemon loop encountered error: {e}")
+            time.sleep(10)
+
+
+if __name__ == "__main__":
+    # Check if run as a single test cycle or continuous daemon
+    # If DAEMON_MODE=true in env or --daemon in sys.argv, runs forever; else single cycle
+    is_daemon = os.getenv("DAEMON_MODE", "false").lower() == "true" or "--daemon" in sys.argv
+    max_iter = None if is_daemon else 1
+    run_daemon_loop(max_iterations=max_iter)

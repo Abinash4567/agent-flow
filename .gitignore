@@ -110,3 +110,5 @@ coverage/
 tmp/
 temp/
 *.tmp
+*.state.json
+.state.json

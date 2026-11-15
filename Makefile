@@ -1,4 +1,4 @@
-.PHONY: help setup dev dev-backend dev-frontend build test lint format clean
+.PHONY: help setup dev dev-backend dev-frontend build test lint format bot daemon pm2-start pm2-stop pm2-restart pm2-status pm2-logs clean
 
 help:
 	@echo "Available commands:"
@@ -6,11 +6,38 @@ help:
 	@echo "  make dev            - Run backend and frontend concurrently"
 	@echo "  make dev-backend    - Run backend service"
 	@echo "  make dev-frontend   - Run frontend service"
+	@echo "  make bot            - Run a single evaluation cycle of the trading bot"
+	@echo "  make daemon         - Run continuous trading bot daemon in foreground"
+	@echo "  make pm2-start      - Launch bot daemon as a background PM2 service"
+	@echo "  make pm2-stop       - Stop PM2 bot daemon"
+	@echo "  make pm2-status     - Check PM2 bot daemon status"
+	@echo "  make pm2-logs       - Stream live PM2 bot logs"
 	@echo "  make build          - Build both services"
 	@echo "  make test           - Run tests across all services"
 	@echo "  make lint           - Run linters across root and services"
 	@echo "  make format         - Format codebase with Prettier"
 	@echo "  make clean          - Clean build artifacts and temporary files"
+
+bot:
+	@.venv/bin/python3 bot.py
+
+daemon:
+	@DAEMON_MODE=true .venv/bin/python3 bot.py
+
+pm2-start:
+	@pm2 start ecosystem.config.cjs
+
+pm2-stop:
+	@pm2 stop btc-trading-bot
+
+pm2-restart:
+	@pm2 restart btc-trading-bot
+
+pm2-status:
+	@pm2 status btc-trading-bot
+
+pm2-logs:
+	@pm2 logs btc-trading-bot --lines 30
 
 setup:
 	@echo "Running setup..."

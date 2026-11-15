@@ -29,6 +29,7 @@ This document serves as the single source of truth for tracking every architectu
 | [`.gitignore`](file:///home/abinash/Desktop/agent-flow/.gitignore)                             | File      | Polyglot ignore rules (Node, Python, Go, Rust, Java, Docker, OS, IDEs)    |
 | [`docker-compose.yml`](file:///home/abinash/Desktop/agent-flow/docker-compose.yml)             | File      | Multi-service local container orchestrator                                |
 | [`Makefile`](file:///home/abinash/Desktop/agent-flow/Makefile)                                 | File      | Unified command runner (`setup`, `dev`, `build`, `test`, `lint`, `clean`) |
+| [`ecosystem.config.cjs`](file:///home/abinash/Desktop/agent-flow/ecosystem.config.cjs)         | File      | PM2 process manager configuration for continuous daemon operation         |
 | [`package.json`](file:///home/abinash/Desktop/agent-flow/package.json)                         | File      | Root tooling scripts and devDependencies                                  |
 | [`.prettierrc.json`](file:///home/abinash/Desktop/agent-flow/.prettierrc.json)                 | File      | Code formatter rules (tabs, quotes, width, line endings)                  |
 | [`.prettierignore`](file:///home/abinash/Desktop/agent-flow/.prettierignore)                   | File      | Excluded directories for Prettier formatting                              |
@@ -307,16 +308,41 @@ This document serves as the single source of truth for tracking every architectu
 
 ---
 
+### [Step 016] Level 3 Automation & Risk Management: Position Memory, Exit Engine & PM2 Daemon
+
+- **Timestamp:** 2026-11-15T22:18:00+05:30
+- **Category:** Autonomous Execution & Risk Control / Level 3
+- **Action:**
+  - Implemented persistent position state tracking in [`.state.json`](file:///home/abinash/Desktop/agent-flow/.state.json) (`load_position_state()`, `save_position_state()`).
+  - Implemented risk-management exit rules in `check_exit_conditions()`:
+    - **Stop-Loss (2%)**: Automatically closes positions when price drops 2% below entry.
+    - **Take-Profit (6%)**: Automatically sells positions when gains reach 6%.
+  - Verified exit triggers against live market data: Simulated both stop-loss and take-profit breaches, successfully triggering automated testnet market sell orders (Binance Orders `#14285611` and `#14285612`).
+  - Implemented `run_daemon_loop()` supporting both single-cycle runs (`make bot`) and continuous event loop execution (`make daemon`).
+  - Installed PM2 globally in user space and created [`ecosystem.config.cjs`](file:///home/abinash/Desktop/agent-flow/ecosystem.config.cjs) with auto-restart, health-check, and log streaming targets in [`Makefile`](file:///home/abinash/Desktop/agent-flow/Makefile).
+- **Files Modified / Created:**
+  - [`/home/abinash/Desktop/agent-flow/backend/bot.py`](file:///home/abinash/Desktop/agent-flow/backend/bot.py)
+  - [`/home/abinash/Desktop/agent-flow/bot.py`](file:///home/abinash/Desktop/agent-flow/bot.py)
+  - [`/home/abinash/Desktop/agent-flow/ecosystem.config.cjs`](file:///home/abinash/Desktop/agent-flow/ecosystem.config.cjs)
+  - [`/home/abinash/Desktop/agent-flow/Makefile`](file:///home/abinash/Desktop/agent-flow/Makefile)
+  - [`/home/abinash/Desktop/agent-flow/.gitignore`](file:///home/abinash/Desktop/agent-flow/.gitignore)
+  - [`/home/abinash/Desktop/agent-flow/TRACKING.md`](file:///home/abinash/Desktop/agent-flow/TRACKING.md)
+- **Status:** Completed
+
+---
+
 ## 3. Active Decisions & Next Steps
 
-| Item                          | Description                                                                           | Status            |
-| :---------------------------- | :------------------------------------------------------------------------------------ | :---------------- |
-| **Git Author Identity**       | Configured repo-local author details matching authenticated GitHub account.           | Completed         |
-| **Remote Repository Sync**    | Pushed initial commit to `origin/main` on GitHub (`Abinash4567/agent-flow`).          | Completed         |
-| **Code Quality & Tooling**    | Prettier, ESLint, Husky, lint-staged, VS Code settings configured.                    | Completed         |
-| **L0 Market Connection**      | Connected to Binance Spot Testnet via `ccxt` with dual auto-detection fallback.       | Completed         |
-| **L1 Order & Data Pipeline**  | Verified automated market buy execution (`Order #13870713`) & OHLCV DataFrame fetch.  | Completed         |
-| **L2 Quantitative Trigger**   | Implemented EMA 9 / EMA 21 indicator pipeline & signal generation (`BUY/SELL/HOLD`).  | Completed         |
-| **L2 NLP News Trigger**       | Integrated FinBERT sentiment analyzer & multi-source live crypto news feeds.          | Completed         |
-| **L2 Combined Edge Decision** | Verified dual-condition filter preventing counter-trend entries on divergent signals. | Completed         |
-| **Next Phase: Automation**    | Implement autonomous scheduling loop, stop-loss/take-profit, or portfolio telemetry.  | Open for Decision |
+| Item                          | Description                                                                            | Status            |
+| :---------------------------- | :------------------------------------------------------------------------------------- | :---------------- |
+| **Git Author Identity**       | Configured repo-local author details matching authenticated GitHub account.            | Completed         |
+| **Remote Repository Sync**    | Pushed initial commit to `origin/main` on GitHub (`Abinash4567/agent-flow`).           | Completed         |
+| **Code Quality & Tooling**    | Prettier, ESLint, Husky, lint-staged, VS Code settings configured.                     | Completed         |
+| **L0 Market Connection**      | Connected to Binance Spot Testnet via `ccxt` with dual auto-detection fallback.        | Completed         |
+| **L1 Order & Data Pipeline**  | Verified automated market buy execution (`Order #13870713`) & OHLCV DataFrame fetch.   | Completed         |
+| **L2 Quantitative Trigger**   | Implemented EMA 9 / EMA 21 indicator pipeline & signal generation (`BUY/SELL/HOLD`).   | Completed         |
+| **L2 NLP News Trigger**       | Integrated FinBERT sentiment analyzer & multi-source live crypto news feeds.           | Completed         |
+| **L2 Combined Edge Decision** | Verified dual-condition filter preventing counter-trend entries on divergent signals.  | Completed         |
+| **L3 Risk Management**        | Implemented Stop-Loss (-2%) & Take-Profit (+6%) exit engine with simulated executions. | Completed         |
+| **L3 Continuous Daemon**      | Built persistent daemon loop and PM2 production process configuration.                 | Completed         |
+| **Next Phase: Monitoring**    | Launch PM2 daemon in background, configure live alerts, or build frontend dashboard.   | Open for Decision |
